@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "name": "simple-led",
+    "author": "tu-nombre",
+    "version": "0.1.0",
+    "created_at": "2025-11-24T00:00:00Z"
+  },
+  "components": [
+    {
+      "id": "R1",
+      "type": "resistor",
+      "params": { "resistance_ohm": 1000 },
+      "pins": { "1": { "x": 10, "y": 10 }, "2": { "x": 20, "y": 10 } }
+    },
+    {
+      "id": "LED1",
+      "type": "led",
+      "params": { "color": "red" },
+      "pins": { "a": { "x": 20, "y": 10 }, "b": { "x": 30, "y": 10 } }
+    },
+    {
+      "id": "V1",
+      "type": "voltage_source",
+      "params": { "voltage_v": 5 },
+      "pins": { "+": { "x": 0, "y": 10 }, "-": { "x": 0, "y": 20 } }
+    }
+  ],
+  "nets": [
+    { "id": "net1", "connections": [ { "component": "V1", "pin": " + " }, { "component": "R1", "pin": "1" } ] },
+    { "id": "net2", "connections": [ { "component": "R1", "pin": "2" }, { "component": "LED1", "pin": "a" } ] },
+    { "id": "gnd", "connections": [ { "component": "V1", "pin": "-" }, { "component": "LED1", "pin": "b" } ] }
+  ],
+  "sim_config": {
+    "type": "dc",
+    "options": {}
+  }
+}
