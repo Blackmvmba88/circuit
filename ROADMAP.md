@@ -1,37 +1,173 @@
-# Roadmap inicial
+# Circuit Project Roadmap
 
-Fases propuestas:
-1. ✅ Especificación del formato de archivo (v0.1) — objetivo: definir campos, validaciones y ejemplos.
-2. ✅ Ejemplos y librería de componentes básicos — resistores, condensadores, fuentes y componentes lógicos.
-3. ✅ Sistema de modelado 3D con Blender — generación automática de modelos de componentes.
-4. ✅ Guías de diseño EMI/ruido — documentación completa sobre mejores prácticas.
-5. ✅ **Adaptador para Altium Designer** — export completo a formato Altium con netlist, BOM, placement y guía de importación.
-6. 🔄 Editor básico web y CLI (crear/editar/validar) — UI mínima para dibujar y JSON para guardar.
-7. ⏳ Adaptadores de simulación (SPICE, Verilog) — export/import de formatos comunes.
-8. ⏳ Adaptadores para otros EDA tools (KiCAD, EAGLE, EasyEDA).
-9. ⏳ Sistema de plugins y marketplace de componentes.
-10. ⏳ Integraciones con IDEs (extensión para VS Code) y plataformas colaborativas.
+This roadmap outlines the development phases and milestones for the Circuit project. It's a living document that will evolve as the project grows.
 
-**Leyenda**: ✅ Completado | 🔄 En progreso | ⏳ Planeado
+## Phase 1: Foundation (Current Phase)
 
-## Detalles de Integración con Altium
+**Goal**: Establish the basic project structure and format specification
 
-El adaptador para Altium Designer incluye:
-- ✅ Exportación de biblioteca de componentes (CSV)
-- ✅ Netlist en formato Protel (nativo de Altium)
-- ✅ Bill of Materials con agrupación inteligente
-- ✅ Coordenadas de colocación de componentes para PCB
-- ✅ Dimensiones y especificaciones de la placa
-- ✅ Reglas de diseño EMI/EMC traducidas a formato Altium
-- ✅ Guía completa de importación paso a paso
-- ✅ Mapeo automático de footprints estándar
-- ✅ Formato de valores estándar (10K, 100nF, etc.)
+### Completed
+- [x] Initial repository setup
+- [x] Project documentation (README, CONTRIBUTING, CODE_OF_CONDUCT)
+- [x] Example circuit in .circuit.json format
+- [x] MIT License
 
-Uso:
-```bash
-python3 adapters/circuit_to_altium.py examples/circuit_with_3d.circuit.json altium_export/
-```
+### In Progress
+- [ ] Refine .circuit.json format specification
+- [ ] Create formal JSON schema for validation
+- [ ] Gather community feedback on format design
 
-Cada fase se dividirá en issues y milestones; puedo crear esas issues automáticamente si quieres.
+### Next Steps
+- [ ] Write comprehensive format specification document
+- [ ] Define standard component types and properties
+- [ ] Document connection syntax and semantics
+- [ ] Create additional example circuits (various complexity levels)
+
+## Phase 2: Tooling Development
+
+**Goal**: Build essential tools for working with circuit files
+
+### Validator
+- [ ] JSON schema validator for .circuit.json files
+- [ ] Semantic validation (e.g., connection validity)
+- [ ] CLI tool for validation
+- [ ] Integration with editors (VSCode extension, etc.)
+
+### Parser/Library
+- [ ] Reference parser implementation (JavaScript/TypeScript)
+- [ ] Parser implementations in other languages (Python, Go, Rust)
+- [ ] API documentation
+- [ ] Usage examples
+
+### Visualizer
+- [ ] Basic circuit diagram renderer
+- [ ] SVG/PNG export functionality
+- [ ] Web-based viewer
+- [ ] Interactive circuit explorer
+
+## Phase 3: Editor Support
+
+**Goal**: Make it easy to create and edit circuit files
+
+### Text Editor Integration
+- [ ] VSCode extension with syntax highlighting
+- [ ] Auto-completion for component types
+- [ ] Inline validation and error reporting
+- [ ] Quick fixes and suggestions
+
+### Visual Editor
+- [ ] Web-based visual circuit editor
+- [ ] Drag-and-drop component placement
+- [ ] Visual connection drawing
+- [ ] Real-time .circuit.json generation
+- [ ] Bidirectional sync (visual ↔ text)
+
+## Phase 4: Adapters and Integration
+
+**Goal**: Enable interoperability with existing EDA tools
+
+### Import Adapters
+- [ ] KiCad schematic importer
+- [ ] EAGLE XML importer
+- [ ] LTspice netlist importer
+- [ ] Fritzing project importer
+
+### Export Adapters
+- [ ] Netlist generator (SPICE format)
+- [ ] KiCad schematic exporter
+- [ ] SVG/PDF schematic export
+- [ ] Bill of Materials (BOM) generator
+
+### CI/CD Integration
+- [ ] GitHub Actions for validation
+- [ ] Automated testing workflows
+- [ ] Design rule checking (DRC)
+- [ ] Documentation generation
+
+## Phase 5: Advanced Features
+
+**Goal**: Add sophisticated capabilities for complex projects
+
+### Analysis Tools
+- [ ] Circuit simulation integration
+- [ ] Signal analysis tools
+- [ ] Power consumption calculator
+- [ ] Component stress analysis
+
+### Collaboration Features
+- [ ] Diff/merge tools for circuit files
+- [ ] Visual diff viewer
+- [ ] Code review integration
+- [ ] Change tracking and annotations
+
+### Component Library
+- [ ] Standard component library
+- [ ] Custom component definitions
+- [ ] Component datasheet links
+- [ ] Footprint associations
+- [ ] Package information
+
+### Project Management
+- [ ] Multi-file circuit projects
+- [ ] Hierarchical designs (sub-circuits)
+- [ ] Variants and configurations
+- [ ] Version management
+
+## Phase 6: Community and Ecosystem
+
+**Goal**: Build a thriving community and ecosystem
+
+### Community Building
+- [ ] Community forum/discussion platform
+- [ ] Tutorial series and documentation
+- [ ] Example project gallery
+- [ ] Best practices guide
+
+### Ecosystem Growth
+- [ ] Plugin architecture
+- [ ] Third-party tool integration
+- [ ] API for external tools
+- [ ] Marketplace for components/templates
+
+### Education
+- [ ] Educational resources
+- [ ] Integration with learning platforms
+- [ ] Workshop materials
+- [ ] Video tutorials
+
+## Suggested Immediate Next Steps
+
+1. **Gather Feedback**: Share the project with the electronics and EDA communities to get early feedback on the format
+2. **Define Schema**: Create a formal JSON schema for the .circuit.json format
+3. **Build Validator**: Implement a basic validator to ensure format compliance
+4. **Create Examples**: Add more example circuits covering different use cases
+5. **Setup CI**: Add GitHub Actions for automated testing and validation
+6. **Create Issues**: Break down roadmap items into specific GitHub issues
+7. **Set Milestones**: Group issues into milestones for better tracking
+
+## How to Contribute
+
+Interested in working on any of these items? Check out [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to get started. Feel free to:
+
+- Pick an item from the roadmap and open an issue to discuss implementation
+- Suggest new features or modifications to the roadmap
+- Help with documentation and examples
+- Join discussions about the project direction
+
+## Timeline
+
+This is an open-source project driven by community contributions, so we don't have strict deadlines. However, we aim to:
+
+- Complete **Phase 1** within 2-3 months
+- Begin **Phase 2** work in parallel with Phase 1 refinements
+- Have basic tooling (**Phase 2**) within 6 months
+- Start **Phase 3** work by end of year 1
+
+Timelines are flexible and depend on community involvement and contributions.
 
 ---
+
+**Last Updated**: 2024-01-01  
+**Status**: Phase 1 - Foundation in progress
+
+Have suggestions for the roadmap? Open an issue or discussion to share your ideas!

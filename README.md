@@ -1,84 +1,104 @@
-# circuit
+# Circuit
 
-Bienvenido a "circuit" — un entorno open-source para creación, edición y seguimiento de circuitos electrónicos y digitales, diseñado para ser interoperable con cualquier herramienta que quiera sumarse a la aventura. Piensa en un "Visual Studio Code" para circuitos: extensible, modular y colaborativo.
+**A universal format for describing electronic circuits and logic designs**
 
-## Visión
-Crear un ecosistema abierto para diseñar, simular, documentar y compartir circuitos, donde herramientas externas puedan integrarse mediante adaptadores o plugins y donde la comunidad construya una librería común de componentes y formatos.
+## Overview
 
-## Qué es
-- Un formato de intercambio de circuitos (JSON legible por máquinas).
-- Un conjunto de especificaciones para adaptadores (simuladores, CAD, visualizadores).
-- Plantillas y guía para construir editores y plugins.
-- Un repositorio central para bibliotecas de componentes reutilizables.
+Circuit is an open-source project that aims to create a universal, human-readable format for describing electronic circuits and logic designs. The goal is to provide a standardized way to represent circuits that can be:
 
-## Características iniciales (MVP)
-- Formato de archivo interoperable (.circuit.json)
-- Editor básico (web/CLI) para crear y editar esquemas simples
-- Adaptador de ejemplo para exportar a un simulador popular (por ejemplo, SPICE)
-- **Adaptador para Altium Designer** - exporta circuitos al formato Altium
-- Librería de componentes básicos (resistores, condensadores, fuentes, puertas lógicas)
-- **Sistema de modelado 3D con Blender** para visualización de componentes
-- **Guías de diseño EMI/ruido** para crear circuitos robustos
+- **Portable**: Work across different tools and platforms
+- **Version-controllable**: Track circuit changes with Git
+- **Human-readable**: Easy to understand and edit manually
+- **Machine-friendly**: Simple to parse and validate
 
-## Formato de archivo (breve)
-Usaremos JSON con:
-- metadata: nombre, autor, versión, fecha
-- components: lista con ids, tipo, parámetros, posición
-- nets: conexiones entre pines
-- sim_config (opcional): parámetros de simulación
-- model_3d (opcional): referencias a modelos 3D de Blender
+## Vision
 
-Ejemplo: ver `examples/simple_circuit.circuit.json`.
+We envision a world where electronic circuit designs are as easy to share, collaborate on, and version-control as software code. Circuit aims to bridge the gap between visual circuit design tools and text-based workflows, enabling:
 
-## Sistema de Modelado 3D con Blender
-El proyecto incluye un sistema completo para generar modelos 3D de componentes electrónicos:
-- Scripts Python para Blender que crean componentes con dimensiones estándar
-- Modelos de resistores, condensadores, ICs, LEDs, conectores y PCBs
-- Exportación a múltiples formatos (STL, OBJ, glTF, FBX)
-- Integración con el formato .circuit.json
+- Collaboration on circuit designs using standard Git workflows
+- CI/CD pipelines for circuit validation and testing
+- Interoperability between different EDA (Electronic Design Automation) tools
+- Educational resources that are accessible and easy to understand
 
-Ver `blender_models/README.md` y `docs/blender_usage_guide.md` para más información.
+## The .circuit.json Format
 
-## Guías de Diseño EMI/Ruido
-Documentación completa sobre cómo diseñar circuitos sin interferencias electromagnéticas:
-- Principios de layout de PCB
-- Técnicas de conexión a tierra
-- Filtrado y desacoplamiento
-- Separación de señales analógicas/digitales
-- Estándares internacionales (FCC, CISPR)
+Circuit files use the `.circuit.json` extension and follow a simple JSON schema that describes:
 
-Ver `docs/guidelines/emi_noise_prevention.md` para la guía completa.
+- **Components**: Electronic parts (resistors, capacitors, ICs, etc.)
+- **Connections**: How components are wired together
+- **Metadata**: Project information, version, author, etc.
 
-## Exportación a Altium Designer
-El proyecto incluye un adaptador completo para exportar circuitos a Altium Designer:
+### Example
 
-```bash
-python3 adapters/circuit_to_altium.py examples/simple_circuit.circuit.json altium_export/
+```json
+{
+  "version": "1.0",
+  "metadata": {
+    "name": "Simple LED Circuit",
+    "description": "A basic LED circuit with a resistor"
+  },
+  "components": [
+    {
+      "id": "R1",
+      "type": "resistor",
+      "value": "220Ω"
+    },
+    {
+      "id": "LED1",
+      "type": "led",
+      "color": "red"
+    }
+  ],
+  "connections": [
+    {
+      "from": "VCC",
+      "to": "R1.1"
+    },
+    {
+      "from": "R1.2",
+      "to": "LED1.anode"
+    },
+    {
+      "from": "LED1.cathode",
+      "to": "GND"
+    }
+  ]
+}
 ```
 
-Genera archivos compatibles con Altium:
-- Biblioteca de componentes (CSV)
-- Netlist en formato Protel
-- Bill of Materials (BOM)
-- Coordenadas de colocación de componentes
-- Reglas de diseño
-- Guía de importación paso a paso
+## Getting Started
 
-Ver `adapters/README.md` para más información.
+### For Users
 
-## Cómo empezar (desarrolladores)
-1. Clona el repo:
-   git clone https://github.com/Blackmvmba88/circuit
-2. Revisa `/examples` y `/specs` para entender el formato.
-3. Añade componentes en `/components` o crea adaptadores en `/adapters`.
+1. Browse the [examples/](examples/) directory to see sample circuits
+2. Try creating your own `.circuit.json` files
+3. Share feedback and suggestions via [Issues](../../issues)
 
-## Contribuir
-Lee `CONTRIBUTING.md` y `CODE_OF_CONDUCT.md`. Usaremos PRs y ramas temáticas; puedes proponer mejoras en Issues o abrir PRs directamente.
+### For Contributors
 
-## Licencia
-MIT — ver `LICENSE`.
+We welcome contributions! Whether you're interested in:
+
+- Defining the circuit format specification
+- Building tooling (validators, converters, visualizers)
+- Creating adapters for popular EDA tools
+- Writing documentation and examples
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to get involved.
 
 ## Roadmap
-Ver `ROADMAP.md` para las etapas planificadas.
 
----
+Check out our [ROADMAP.md](ROADMAP.md) for planned features and milestones.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Community
+
+- **Issues**: Report bugs or request features via [GitHub Issues](../../issues)
+- **Discussions**: Join conversations in [GitHub Discussions](../../discussions)
+- **Code of Conduct**: Please read our [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+
+## Status
+
+⚠️ **This project is in early development.** The format specification and tooling are still evolving. We encourage early feedback and contributions!

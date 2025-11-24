@@ -1,37 +1,68 @@
 {
+  "version": "1.0",
   "metadata": {
-    "name": "simple-led",
-    "author": "tu-nombre",
-    "version": "0.1.0",
-    "created_at": "2025-11-24T00:00:00Z"
+    "name": "Simple LED Circuit",
+    "description": "A basic LED circuit with current-limiting resistor",
+    "author": "Circuit Example",
+    "created": "2024-01-01",
+    "tags": ["led", "basic", "tutorial"]
   },
   "components": [
     {
       "id": "R1",
       "type": "resistor",
-      "params": { "resistance_ohm": 1000 },
-      "pins": { "1": { "x": 10, "y": 10 }, "2": { "x": 20, "y": 10 } }
+      "value": "220Ω",
+      "tolerance": "5%",
+      "power": "0.25W",
+      "notes": "Current limiting resistor for LED"
     },
     {
       "id": "LED1",
       "type": "led",
-      "params": { "color": "red" },
-      "pins": { "a": { "x": 20, "y": 10 }, "b": { "x": 30, "y": 10 } }
+      "color": "red",
+      "forward_voltage": "2.0V",
+      "forward_current": "20mA",
+      "notes": "Standard 5mm red LED"
     },
     {
-      "id": "V1",
-      "type": "voltage_source",
-      "params": { "voltage_v": 5 },
-      "pins": { "+": { "x": 0, "y": 10 }, "-": { "x": 0, "y": 20 } }
+      "id": "VCC",
+      "type": "power_supply",
+      "voltage": "5V",
+      "notes": "5V DC power source"
+    },
+    {
+      "id": "GND",
+      "type": "ground",
+      "notes": "Circuit ground reference"
     }
   ],
-  "nets": [
-    { "id": "net1", "connections": [ { "component": "V1", "pin": " + " }, { "component": "R1", "pin": "1" } ] },
-    { "id": "net2", "connections": [ { "component": "R1", "pin": "2" }, { "component": "LED1", "pin": "a" } ] },
-    { "id": "gnd", "connections": [ { "component": "V1", "pin": "-" }, { "component": "LED1", "pin": "b" } ] }
+  "connections": [
+    {
+      "from": "VCC.positive",
+      "to": "R1.1",
+      "notes": "Power supply positive to resistor"
+    },
+    {
+      "from": "R1.2",
+      "to": "LED1.anode",
+      "notes": "Resistor to LED positive terminal"
+    },
+    {
+      "from": "LED1.cathode",
+      "to": "GND",
+      "notes": "LED negative terminal to ground"
+    }
   ],
-  "sim_config": {
-    "type": "dc",
-    "options": {}
-  }
+  "properties": {
+    "supply_voltage": "5V",
+    "estimated_current": "13.64mA",
+    "power_consumption": "68.3mW"
+  },
+  "notes": [
+    "This is a simple LED circuit demonstrating the .circuit.json format.",
+    "The resistor value is calculated using Ohm's law: R = (Vs - Vf) / If",
+    "Where Vs = 5V (supply), Vf = 2V (LED forward voltage), If = 20mA (desired current)",
+    "R = (5V - 2V) / 0.02A = 150Ω minimum. Using standard 220Ω resistor for safety.",
+    "Actual current with 220Ω: I = (5V - 2V) / 220Ω = 13.64mA"
+  ]
 }
