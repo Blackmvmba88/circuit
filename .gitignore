@@ -12,6 +12,12 @@ venv/
 # VS Code
 .vscode/
 
+# Blender
+*.blend1
+*.blend2
+*.blend@
+blender_tmp/
+
 # Temp
 .DS_Store
 *.log

@@ -16,6 +16,8 @@ Crear un ecosistema abierto para diseñar, simular, documentar y compartir circu
 - Editor básico (web/CLI) para crear y editar esquemas simples
 - Adaptador de ejemplo para exportar a un simulador popular (por ejemplo, SPICE)
 - Librería de componentes básicos (resistores, condensadores, fuentes, puertas lógicas)
+- **Sistema de modelado 3D con Blender** para visualización de componentes
+- **Guías de diseño EMI/ruido** para crear circuitos robustos
 
 ## Formato de archivo (breve)
 Usaremos JSON con:
@@ -23,8 +25,28 @@ Usaremos JSON con:
 - components: lista con ids, tipo, parámetros, posición
 - nets: conexiones entre pines
 - sim_config (opcional): parámetros de simulación
+- model_3d (opcional): referencias a modelos 3D de Blender
 
 Ejemplo: ver `examples/simple_circuit.circuit.json`.
+
+## Sistema de Modelado 3D con Blender
+El proyecto incluye un sistema completo para generar modelos 3D de componentes electrónicos:
+- Scripts Python para Blender que crean componentes con dimensiones estándar
+- Modelos de resistores, condensadores, ICs, LEDs, conectores y PCBs
+- Exportación a múltiples formatos (STL, OBJ, glTF, FBX)
+- Integración con el formato .circuit.json
+
+Ver `blender_models/README.md` y `docs/blender_usage_guide.md` para más información.
+
+## Guías de Diseño EMI/Ruido
+Documentación completa sobre cómo diseñar circuitos sin interferencias electromagnéticas:
+- Principios de layout de PCB
+- Técnicas de conexión a tierra
+- Filtrado y desacoplamiento
+- Separación de señales analógicas/digitales
+- Estándares internacionales (FCC, CISPR)
+
+Ver `docs/guidelines/emi_noise_prevention.md` para la guía completa.
 
 ## Cómo empezar (desarrolladores)
 1. Clona el repo:
