@@ -1,0 +1,67 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "name": "Simple LED Circuit",
+    "description": "A basic LED circuit with current-limiting resistor",
+    "author": "Circuit Example",
+    "created": "2024-01-01",
+    "tags": ["led", "basic", "tutorial"]
+  },
+  "components": [
+    {
+      "id": "R1",
+      "type": "resistor",
+      "value": "220Ω",
+      "tolerance": "5%",
+      "power": "0.25W",
+      "notes": "Current limiting resistor for LED"
+    },
+    {
+      "id": "LED1",
+      "type": "led",
+      "color": "red",
+      "forward_voltage": "2.0V",
+      "forward_current": "20mA",
+      "notes": "Standard 5mm red LED"
+    },
+    {
+      "id": "VCC",
+      "type": "power_supply",
+      "voltage": "5V",
+      "notes": "5V DC power source"
+    },
+    {
+      "id": "GND",
+      "type": "ground",
+      "notes": "Circuit ground reference"
+    }
+  ],
+  "connections": [
+    {
+      "from": "VCC.positive",
+      "to": "R1.1",
+      "notes": "Power supply positive to resistor"
+    },
+    {
+      "from": "R1.2",
+      "to": "LED1.anode",
+      "notes": "Resistor to LED positive terminal"
+    },
+    {
+      "from": "LED1.cathode",
+      "to": "GND",
+      "notes": "LED negative terminal to ground"
+    }
+  ],
+  "properties": {
+    "supply_voltage": "5V",
+    "estimated_current": "13.6mA",
+    "power_consumption": "68mW"
+  },
+  "notes": [
+    "This is a simple LED circuit demonstrating the .circuit.json format.",
+    "The resistor value is calculated using Ohm's law: R = (Vs - Vf) / If",
+    "Where Vs = 5V (supply), Vf = 2V (LED forward voltage), If = 20mA (desired current)",
+    "R = (5V - 2V) / 0.02A = 150Ω, rounded up to standard value of 220Ω for safety"
+  ]
+}
