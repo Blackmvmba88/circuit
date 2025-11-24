@@ -56,7 +56,7 @@
   "properties": {
     "supply_voltage": "5V",
     "estimated_current": "13.64mA",
-    "power_consumption": "68.2mW"
+    "power_consumption": "68.3mW"
   },
   "notes": [
     "This is a simple LED circuit demonstrating the .circuit.json format.",
