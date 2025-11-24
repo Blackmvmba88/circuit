@@ -107,6 +107,8 @@ class AltiumExporter:
                 pins = comp.get('pins', {})
                 for pin_name, pin_data in pins.items():
                     net = pin_data.get('net', f'N{designator}_{pin_name}')
+                    # Sanitize net name to ensure valid identifiers
+                    net = net.replace(' ', '_').replace('-', '_').replace('+', 'P')
                     f.write(f"  {pin_name} {net}\n")
                 
                 f.write(" )\n")
@@ -384,22 +386,25 @@ class AltiumExporter:
     def _format_resistance(self, ohms: float) -> str:
         """Format resistance value with appropriate suffix."""
         if ohms >= 1e6:
-            return f'{ohms/1e6:.2f}M'
+            value = ohms / 1e6
+            return f'{value:g}M'
         elif ohms >= 1e3:
-            return f'{ohms/1e3:.2f}K'
+            value = ohms / 1e3
+            return f'{value:g}K'
         else:
-            return f'{ohms:.0f}R'
+            return f'{ohms:g}R'
     
     def _format_capacitance(self, farads: float) -> str:
         """Format capacitance value with appropriate suffix."""
-        if farads >= 1e-3:
-            return f'{farads*1e3:.2f}mF'
-        elif farads >= 1e-6:
-            return f'{farads*1e6:.2f}uF'
+        if farads >= 1e-6:
+            value = farads * 1e6
+            return f'{value:g}uF'
         elif farads >= 1e-9:
-            return f'{farads*1e9:.2f}nF'
+            value = farads * 1e9
+            return f'{value:g}nF'
         elif farads >= 1e-12:
-            return f'{farads*1e12:.2f}pF'
+            value = farads * 1e12
+            return f'{value:g}pF'
         else:
             return f'{farads:.2e}F'
     
