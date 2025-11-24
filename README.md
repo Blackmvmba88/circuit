@@ -15,6 +15,7 @@ Crear un ecosistema abierto para diseñar, simular, documentar y compartir circu
 - Formato de archivo interoperable (.circuit.json)
 - Editor básico (web/CLI) para crear y editar esquemas simples
 - Adaptador de ejemplo para exportar a un simulador popular (por ejemplo, SPICE)
+- **Adaptador para Altium Designer** - exporta circuitos al formato Altium
 - Librería de componentes básicos (resistores, condensadores, fuentes, puertas lógicas)
 - **Sistema de modelado 3D con Blender** para visualización de componentes
 - **Guías de diseño EMI/ruido** para crear circuitos robustos
@@ -47,6 +48,23 @@ Documentación completa sobre cómo diseñar circuitos sin interferencias electr
 - Estándares internacionales (FCC, CISPR)
 
 Ver `docs/guidelines/emi_noise_prevention.md` para la guía completa.
+
+## Exportación a Altium Designer
+El proyecto incluye un adaptador completo para exportar circuitos a Altium Designer:
+
+```bash
+python3 adapters/circuit_to_altium.py examples/simple_circuit.circuit.json altium_export/
+```
+
+Genera archivos compatibles con Altium:
+- Biblioteca de componentes (CSV)
+- Netlist en formato Protel
+- Bill of Materials (BOM)
+- Coordenadas de colocación de componentes
+- Reglas de diseño
+- Guía de importación paso a paso
+
+Ver `adapters/README.md` para más información.
 
 ## Cómo empezar (desarrolladores)
 1. Clona el repo:

@@ -40,7 +40,24 @@ El validador verificará:
 - ✅ Red de alimentación
 - ✅ Conexiones a tierra
 
-### 4. Usar el Checklist de Diseño
+### 4. Exportar a Altium Designer
+
+```bash
+cd /ruta/al/proyecto/circuit
+python3 adapters/circuit_to_altium.py examples/circuit_with_3d.circuit.json altium_export/
+```
+
+El adaptador generará:
+- ✅ Biblioteca de componentes (CSV)
+- ✅ Netlist en formato Protel
+- ✅ Bill of Materials (BOM)
+- ✅ Coordenadas de colocación
+- ✅ Reglas de diseño
+- ✅ Guía de importación completa
+
+Ver `altium_export/ALTIUM_IMPORT_GUIDE.txt` para instrucciones de importación.
+
+### 5. Usar el Checklist de Diseño
 
 Antes de fabricar tu PCB:
 1. Abrir `docs/guidelines/pcb_design_checklist.md`
@@ -59,10 +76,20 @@ Antes de fabricar tu PCB:
 | `docs/guidelines/emi_noise_prevention.md` | Guía completa EMI/ruido |
 | `docs/guidelines/pcb_design_checklist.md` | Checklist pre-fabricación |
 | `blender_models/README.md` | Info sobre modelos 3D |
+| `adapters/README.md` | Adaptadores para EDA tools (Altium, etc.) |
 
 ---
 
 ## 🎯 Casos de Uso Comunes
+
+### Exportar a Altium Designer
+```bash
+# Circuito simple
+python3 adapters/circuit_to_altium.py examples/simple_circuit.circuit.json my_project/
+
+# Circuito con 3D y EMI
+python3 adapters/circuit_to_altium.py examples/circuit_with_3d.circuit.json altium_output/
+```
 
 ### Crear Resistor SMD
 ```python

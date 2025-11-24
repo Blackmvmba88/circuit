@@ -152,12 +152,20 @@ python3 blender_models/scripts/validate_circuit.py mi_circuito.circuit.json
 3. Corregir problemas identificados
 4. Obtener aprobación de revisión
 
-### Fase 6: Fabricación
-1. Exportar a formato CAD (KiCAD, Eagle, Altium)
-2. Generar Gerbers
+### Fase 6: Exportación a EDA Tools
+1. Exportar a Altium Designer:
+   ```bash
+   python3 adapters/circuit_to_altium.py mi_circuito.circuit.json altium_export/
+   ```
+2. Importar en Altium siguiendo la guía generada
+3. Revisar y ajustar footprints según componentes reales
+
+### Fase 7: Fabricación
+1. Generar Gerbers desde Altium/KiCAD/Eagle
+2. Revisar archivos con visor de Gerber
 3. Enviar a fabricación
 
-### Fase 7: Documentación
+### Fase 8: Documentación
 1. Renderizar imágenes 3D del circuito
 2. Exportar modelo 3D para manual de usuario
 3. Documentar decisiones de diseño EMI
@@ -238,18 +246,44 @@ python3 blender_models/scripts/validate_circuit.py examples/simple_circuit.circu
 2. **Seguir checklist**: Antes de cada fabricación
 3. **Documentar decisiones**: Usar campo "design_notes" en JSON
 4. **Revisar guías**: Consultar emi_noise_prevention.md para casos especiales
+5. **Exportar a EDA**: Usar adaptadores para importar en herramientas CAD
 
 ---
 
 ## Integración con Herramientas Externas
 
-### KiCAD
+### Altium Designer (✅ IMPLEMENTADO)
+```bash
+# Exportar circuito a formato Altium
+python3 adapters/circuit_to_altium.py examples/circuit_with_3d.circuit.json altium_export/
+
+# Archivos generados:
+# - component_library.csv  : Biblioteca de componentes
+# - netlist.net            : Netlist en formato Protel
+# - bom.csv                : Bill of Materials
+# - component_placement.csv: Coordenadas de componentes
+# - board_outline.txt      : Dimensiones de PCB
+# - design_rules.txt       : Reglas de diseño recomendadas
+# - ALTIUM_IMPORT_GUIDE.txt: Guía de importación paso a paso
+```
+
+**Características**:
+- ✅ Exportación de biblioteca de componentes
+- ✅ Netlist en formato Protel (nativo de Altium)
+- ✅ BOM con componentes agrupados
+- ✅ Coordenadas de colocación para PCB
+- ✅ Mapeo automático de footprints
+- ✅ Conversión de valores (resistencias, capacitancias)
+- ✅ Preservación de reglas de diseño EMI/EMC
+- ✅ Guía completa de importación
+
+### KiCAD (Planeado)
 ```python
 # Script para exportar KiCAD a .circuit.json (futuro)
 # kicad_to_circuit.py
 ```
 
-### SPICE
+### SPICE (Planeado)
 ```python
 # Script para exportar .circuit.json a SPICE netlist (futuro)
 # circuit_to_spice.py
