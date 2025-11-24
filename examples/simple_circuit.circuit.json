@@ -55,13 +55,14 @@
   ],
   "properties": {
     "supply_voltage": "5V",
-    "estimated_current": "13.6mA",
-    "power_consumption": "68mW"
+    "estimated_current": "13.64mA",
+    "power_consumption": "68.2mW"
   },
   "notes": [
     "This is a simple LED circuit demonstrating the .circuit.json format.",
     "The resistor value is calculated using Ohm's law: R = (Vs - Vf) / If",
     "Where Vs = 5V (supply), Vf = 2V (LED forward voltage), If = 20mA (desired current)",
-    "R = (5V - 2V) / 0.02A = 150Ω, rounded up to standard value of 220Ω for safety"
+    "R = (5V - 2V) / 0.02A = 150Ω minimum. Using standard 220Ω resistor for safety.",
+    "Actual current with 220Ω: I = (5V - 2V) / 220Ω = 13.64mA"
   ]
 }
