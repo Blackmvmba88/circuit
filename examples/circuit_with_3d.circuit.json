@@ -1,0 +1,381 @@
+{
+  "metadata": {
+    "name": "example-circuit-with-3d",
+    "description": "Example circuit with 3D model references and EMI-aware layout",
+    "author": "circuit-project",
+    "version": "0.2.0",
+    "created_at": "2025-11-24T09:00:00Z"
+  },
+  "board": {
+    "dimensions": {
+      "width": 60,
+      "height": 40,
+      "thickness": 1.6,
+      "unit": "mm"
+    },
+    "material": "FR4",
+    "layers": 2,
+    "model_3d": {
+      "generator": "create_pcb_board",
+      "position": { "x": 0, "y": 0, "z": -0.8 },
+      "color": "green"
+    }
+  },
+  "components": [
+    {
+      "id": "C1",
+      "type": "capacitor",
+      "package": "0805",
+      "description": "Bulk capacitor for power supply",
+      "params": {
+        "capacitance_f": 1e-5,
+        "voltage_rating_v": 16,
+        "dielectric": "X7R"
+      },
+      "pins": {
+        "1": { "x": -20, "y": 15, "net": "VCC" },
+        "2": { "x": -18, "y": 15, "net": "GND" }
+      },
+      "model_3d": {
+        "generator": "create_capacitor_smd_0805",
+        "position": { "x": -20, "y": 15, "z": 0 },
+        "rotation": { "x": 0, "y": 0, "z": 0 },
+        "params": { "capacitance_value": "10uF" }
+      },
+      "design_notes": "Bulk capacitor - placed close to power input per EMI guidelines"
+    },
+    {
+      "id": "C2",
+      "type": "capacitor",
+      "package": "0805",
+      "description": "High frequency decoupling",
+      "params": {
+        "capacitance_f": 1e-7,
+        "voltage_rating_v": 16,
+        "dielectric": "X7R"
+      },
+      "pins": {
+        "1": { "x": -15, "y": 15, "net": "VCC" },
+        "2": { "x": -13, "y": 15, "net": "GND" }
+      },
+      "model_3d": {
+        "generator": "create_capacitor_smd_0805",
+        "position": { "x": -15, "y": 15, "z": 0 },
+        "rotation": { "x": 0, "y": 0, "z": 0 },
+        "params": { "capacitance_value": "100nF" }
+      },
+      "design_notes": "HF decoupling - 100nF ceramic for filtering high frequency noise"
+    },
+    {
+      "id": "U1",
+      "type": "ic",
+      "package": "SOIC8",
+      "description": "Operational amplifier or microcontroller",
+      "params": {
+        "part_number": "LM358",
+        "manufacturer": "Texas Instruments"
+      },
+      "pins": {
+        "1": { "x": -2.45, "y": 11.905, "net": "OUT1" },
+        "2": { "x": -2.45, "y": 10.635, "net": "IN1-" },
+        "3": { "x": -2.45, "y": 9.365, "net": "IN1+" },
+        "4": { "x": -2.45, "y": 8.095, "net": "GND" },
+        "5": { "x": 2.45, "y": 8.095, "net": "IN2+" },
+        "6": { "x": 2.45, "y": 9.365, "net": "IN2-" },
+        "7": { "x": 2.45, "y": 10.635, "net": "OUT2" },
+        "8": { "x": 2.45, "y": 11.905, "net": "VCC" }
+      },
+      "model_3d": {
+        "generator": "create_ic_soic8",
+        "position": { "x": 0, "y": 10, "z": 0 },
+        "rotation": { "x": 0, "y": 0, "z": 0 }
+      },
+      "design_notes": "Main IC - pin 1 indicator visible on top-left corner"
+    },
+    {
+      "id": "C3",
+      "type": "capacitor",
+      "package": "0805",
+      "description": "IC decoupling capacitor",
+      "params": {
+        "capacitance_f": 1e-7,
+        "voltage_rating_v": 16,
+        "dielectric": "X7R"
+      },
+      "pins": {
+        "1": { "x": 8, "y": 10, "net": "VCC" },
+        "2": { "x": 10, "y": 10, "net": "GND" }
+      },
+      "model_3d": {
+        "generator": "create_capacitor_smd_0805",
+        "position": { "x": 8, "y": 10, "z": 0 },
+        "rotation": { "x": 0, "y": 0, "z": 0 },
+        "params": { "capacitance_value": "100nF" }
+      },
+      "design_notes": "IC decoupling - placed within 5mm of IC VCC pin per EMI guidelines"
+    },
+    {
+      "id": "R1",
+      "type": "resistor",
+      "package": "0805",
+      "description": "Pull-up or feedback resistor",
+      "params": {
+        "resistance_ohm": 10000,
+        "power_rating_w": 0.125,
+        "tolerance": "1%"
+      },
+      "pins": {
+        "1": { "x": -10, "y": 0, "net": "VCC" },
+        "2": { "x": -8, "y": 0, "net": "SIGNAL1" }
+      },
+      "model_3d": {
+        "generator": "create_resistor_smd_0805",
+        "position": { "x": -10, "y": 0, "z": 0 },
+        "rotation": { "x": 0, "y": 0, "z": 0 },
+        "params": { "resistance_value": "10K" }
+      }
+    },
+    {
+      "id": "R2",
+      "type": "resistor",
+      "package": "0805",
+      "description": "Current limiting resistor for LED",
+      "params": {
+        "resistance_ohm": 1000,
+        "power_rating_w": 0.125,
+        "tolerance": "5%"
+      },
+      "pins": {
+        "1": { "x": 10, "y": 0, "net": "SIGNAL2" },
+        "2": { "x": 12, "y": 0, "net": "LED_ANODE" }
+      },
+      "model_3d": {
+        "generator": "create_resistor_smd_0805",
+        "position": { "x": 10, "y": 0, "z": 0 },
+        "rotation": { "x": 0, "y": 0, "z": 0 },
+        "params": { "resistance_value": "1K" }
+      }
+    },
+    {
+      "id": "R3",
+      "type": "resistor",
+      "package": "0805",
+      "description": "Current limiting resistor for LED",
+      "params": {
+        "resistance_ohm": 330,
+        "power_rating_w": 0.125,
+        "tolerance": "5%"
+      },
+      "pins": {
+        "1": { "x": 13, "y": -10, "net": "STATUS_OUT" },
+        "2": { "x": 15, "y": -10, "net": "LED2_ANODE" }
+      },
+      "model_3d": {
+        "generator": "create_resistor_smd_0805",
+        "position": { "x": 13, "y": -10, "z": 0 },
+        "rotation": { "x": 0, "y": 0, "z": 0 },
+        "params": { "resistance_value": "330R" }
+      }
+    },
+    {
+      "id": "LED1",
+      "type": "led",
+      "package": "0805",
+      "description": "Status indicator LED",
+      "params": {
+        "color": "red",
+        "forward_voltage_v": 2.0,
+        "forward_current_ma": 20
+      },
+      "pins": {
+        "anode": { "x": 15, "y": -10, "net": "LED_ANODE" },
+        "cathode": { "x": 17, "y": -10, "net": "GND" }
+      },
+      "model_3d": {
+        "generator": "create_led_smd_0805",
+        "position": { "x": 15, "y": -10, "z": 0 },
+        "rotation": { "x": 0, "y": 0, "z": 0 },
+        "params": { "color": "red" }
+      },
+      "design_notes": "Cathode marked with darker side - ensure proper polarity"
+    },
+    {
+      "id": "LED2",
+      "type": "led",
+      "package": "0805",
+      "description": "Power indicator LED",
+      "params": {
+        "color": "green",
+        "forward_voltage_v": 2.2,
+        "forward_current_ma": 20
+      },
+      "pins": {
+        "anode": { "x": 20, "y": -10, "net": "LED2_ANODE" },
+        "cathode": { "x": 22, "y": -10, "net": "GND" }
+      },
+      "model_3d": {
+        "generator": "create_led_smd_0805",
+        "position": { "x": 20, "y": -10, "z": 0 },
+        "rotation": { "x": 0, "y": 0, "z": 0 },
+        "params": { "color": "green" }
+      },
+      "design_notes": "Power indicator - always on when system is powered"
+    },
+    {
+      "id": "J1",
+      "type": "connector",
+      "package": "HEADER_2.54MM",
+      "description": "6-pin header connector for I/O",
+      "params": {
+        "num_pins": 6,
+        "pitch_mm": 2.54,
+        "mounting": "through_hole"
+      },
+      "pins": {
+        "1": { "x": -20, "y": -15, "net": "VCC" },
+        "2": { "x": -17.46, "y": -15, "net": "GND" },
+        "3": { "x": -14.92, "y": -15, "net": "SIGNAL1" },
+        "4": { "x": -12.38, "y": -15, "net": "SIGNAL2" },
+        "5": { "x": -9.84, "y": -15, "net": "STATUS_OUT" },
+        "6": { "x": -7.3, "y": -15, "net": "GND" }
+      },
+      "model_3d": {
+        "generator": "create_header_connector",
+        "position": { "x": -20, "y": -15, "z": 0 },
+        "rotation": { "x": 0, "y": 0, "z": 0 },
+        "params": { "num_pins": 6 }
+      },
+      "design_notes": "Through-hole connector - ground pins on positions 2 and 6 for EMI reduction"
+    }
+  ],
+  "nets": [
+    {
+      "id": "VCC",
+      "name": "VCC",
+      "connections": [
+        { "component": "J1", "pin": "1" },
+        { "component": "C1", "pin": "1" },
+        { "component": "C2", "pin": "1" },
+        { "component": "U1", "pin": "8" },
+        { "component": "C3", "pin": "1" },
+        { "component": "R1", "pin": "1" }
+      ],
+      "design_notes": "Power rail - use wide traces (minimum 0.5mm) and decoupling at each IC"
+    },
+    {
+      "id": "GND",
+      "name": "GND",
+      "connections": [
+        { "component": "J1", "pin": "2" },
+        { "component": "J1", "pin": "6" },
+        { "component": "C1", "pin": "2" },
+        { "component": "C2", "pin": "2" },
+        { "component": "U1", "pin": "4" },
+        { "component": "C3", "pin": "2" },
+        { "component": "LED1", "pin": "cathode" },
+        { "component": "LED2", "pin": "cathode" }
+      ],
+      "design_notes": "Ground plane - use solid copper pour on bottom layer with multiple vias"
+    },
+    {
+      "id": "SIGNAL1",
+      "connections": [
+        { "component": "R1", "pin": "2" },
+        { "component": "J1", "pin": "3" }
+      ]
+    },
+    {
+      "id": "SIGNAL2",
+      "connections": [
+        { "component": "R2", "pin": "1" },
+        { "component": "J1", "pin": "4" }
+      ]
+    },
+    {
+      "id": "LED_ANODE",
+      "connections": [
+        { "component": "R2", "pin": "2" },
+        { "component": "LED1", "pin": "anode" }
+      ]
+    },
+    {
+      "id": "LED2_ANODE",
+      "connections": [
+        { "component": "R3", "pin": "2" },
+        { "component": "LED2", "pin": "anode" }
+      ]
+    },
+    {
+      "id": "STATUS_OUT",
+      "connections": [
+        { "component": "R3", "pin": "1" },
+        { "component": "J1", "pin": "5" }
+      ]
+    },
+    {
+      "id": "OUT1",
+      "connections": [
+        { "component": "U1", "pin": "1" }
+      ]
+    },
+    {
+      "id": "IN1-",
+      "connections": [
+        { "component": "U1", "pin": "2" }
+      ]
+    },
+    {
+      "id": "IN1+",
+      "connections": [
+        { "component": "U1", "pin": "3" }
+      ]
+    },
+    {
+      "id": "IN2+",
+      "connections": [
+        { "component": "U1", "pin": "5" }
+      ]
+    },
+    {
+      "id": "IN2-",
+      "connections": [
+        { "component": "U1", "pin": "6" }
+      ]
+    },
+    {
+      "id": "OUT2",
+      "connections": [
+        { "component": "U1", "pin": "7" }
+      ]
+    }
+  ],
+  "design_rules": {
+    "emi_compliance": {
+      "standard": "FCC Part 15 Class B",
+      "decoupling_strategy": "100nF ceramic within 5mm of each IC",
+      "ground_plane": "Continuous on bottom layer",
+      "trace_spacing_mm": 0.2,
+      "power_trace_width_mm": 0.5
+    },
+    "thermal": {
+      "max_ambient_temp_c": 70,
+      "max_junction_temp_c": 125
+    }
+  },
+  "sim_config": {
+    "type": "dc",
+    "options": {
+      "temperature_c": 25
+    }
+  },
+  "blender_generation": {
+    "script": "blender_models/scripts/component_generator.py",
+    "function": "load_circuit_from_json",
+    "render_options": {
+      "engine": "EEVEE",
+      "resolution": [1920, 1080],
+      "camera_position": [50, -50, 40],
+      "camera_rotation": [1.1, 0, 0.785]
+    }
+  }
+}
