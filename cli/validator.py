@@ -8,6 +8,9 @@ from typing import Tuple, List, Optional
 import jsonschema
 from jsonschema import validate, ValidationError, Draft7Validator
 
+# Special component IDs that don't need to be in component list
+SPECIAL_COMPONENTS = ['VCC', 'GND', 'POWER', 'GROUND']
+
 
 def load_schema() -> dict:
     """Load the circuit.json schema."""
@@ -109,9 +112,9 @@ def validate_semantics(circuit_data: dict, strict: bool = False) -> Tuple[List[s
             from_comp = from_pin.split('.')[0] if '.' in from_pin else from_pin
             to_comp = to_pin.split('.')[0] if '.' in to_pin else to_pin
             
-            if from_comp not in component_ids and from_comp not in ['VCC', 'GND']:
+            if from_comp not in component_ids and from_comp not in SPECIAL_COMPONENTS:
                 errors.append(f"Connection references non-existent component: {from_comp}")
-            if to_comp not in component_ids and to_comp not in ['VCC', 'GND']:
+            if to_comp not in component_ids and to_comp not in SPECIAL_COMPONENTS:
                 errors.append(f"Connection references non-existent component: {to_comp}")
     
     if 'nets' in circuit_data:

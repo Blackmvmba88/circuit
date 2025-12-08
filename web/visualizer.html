@@ -441,6 +441,15 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             const components = currentCircuit.components || [];
+            
+            // Guard against empty components array
+            if (components.length === 0) {
+                ctx.fillStyle = '#a8dadc';
+                ctx.font = '16px sans-serif';
+                ctx.fillText('No components to visualize', canvas.width / 2 - 100, canvas.height / 2);
+                return;
+            }
+            
             const spacing = Math.min(canvas.width / (components.length + 1), 100);
 
             // Draw components

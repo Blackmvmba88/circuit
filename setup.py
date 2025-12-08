@@ -15,7 +15,6 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Circuit Project",
-    author_email="",
     url="https://github.com/Blackmvmba88/circuit",
     license="MIT",
     packages=find_packages(exclude=["tests", "docs", "examples"]),

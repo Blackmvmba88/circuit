@@ -230,7 +230,7 @@
           "connections": {
             "type": "array",
             "description": "List of connected pins",
-            "minItems": 2,
+            "minItems": 1,
             "items": {
               "type": "object",
               "required": ["component", "pin"],

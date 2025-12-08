@@ -40,9 +40,16 @@ def export_altium(circuit_data: dict, file_path: str, output_dir: str) -> None:
     """Export to Altium Designer format using the existing adapter."""
     # Import and use the existing Altium adapter
     adapters_path = Path(__file__).parent.parent / "adapters"
-    sys.path.insert(0, str(adapters_path))
+    
+    # Temporarily add to path for import
+    path_str = str(adapters_path)
+    path_added = False
     
     try:
+        if path_str not in sys.path:
+            sys.path.insert(0, path_str)
+            path_added = True
+        
         from circuit_to_altium import AltiumExporter
         
         exporter = AltiumExporter(circuit_data, output_dir)
@@ -50,7 +57,12 @@ def export_altium(circuit_data: dict, file_path: str, output_dir: str) -> None:
     except ImportError as e:
         raise ImportError(f"Could not import Altium adapter: {e}")
     finally:
-        sys.path.remove(str(adapters_path))
+        # Clean up path modification
+        if path_added:
+            try:
+                sys.path.remove(path_str)
+            except ValueError:
+                pass  # Already removed or never added
 
 
 def export_netlist(circuit_data: dict, output_dir: str) -> None:
