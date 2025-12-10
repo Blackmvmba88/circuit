@@ -1,4 +1,5 @@
 {
+  "version": "1.0",
   "metadata": {
     "name": "example-circuit-with-3d",
     "description": "Example circuit with 3D model references and EMI-aware layout",

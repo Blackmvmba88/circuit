@@ -65,3 +65,9 @@ coverage/
 htmlcov/
 .coverage
 .coverage.*
+
+# Export outputs
+altium_export/
+test_exports/
+*.net
+*.csv

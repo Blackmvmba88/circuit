@@ -1,0 +1,421 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "name": "L298N H-Bridge Motor Driver",
+    "description": "Dual H-bridge motor driver for DC motors with flyback protection",
+    "author": "Circuit Project",
+    "created": "2024-12-08",
+    "tags": ["motor", "h-bridge", "driver", "L298N", "robotics"],
+    "license": "MIT"
+  },
+  "components": [
+    {
+      "id": "U1",
+      "type": "ic",
+      "package": "MULTIWATT15",
+      "description": "L298N Dual H-Bridge Motor Driver",
+      "params": {
+        "part_number": "L298N",
+        "manufacturer": "STMicroelectronics",
+        "voltage_max_v": 46,
+        "current_max_a": 2,
+        "logic_voltage_v": 5
+      },
+      "pins": {
+        "1": { "name": "SENS_A", "net": "GND" },
+        "2": { "name": "OUT1", "net": "MOTOR_A1" },
+        "3": { "name": "OUT2", "net": "MOTOR_A2" },
+        "4": { "name": "VS", "net": "VM" },
+        "5": { "name": "IN1", "net": "IN1" },
+        "6": { "name": "ENA", "net": "ENA" },
+        "7": { "name": "IN2", "net": "IN2" },
+        "8": { "name": "GND", "net": "GND" },
+        "9": { "name": "VSS", "net": "VCC_5V" },
+        "10": { "name": "IN3", "net": "IN3" },
+        "11": { "name": "ENB", "net": "ENB" },
+        "12": { "name": "IN4", "net": "IN4" },
+        "13": { "name": "OUT3", "net": "MOTOR_B1" },
+        "14": { "name": "OUT4", "net": "MOTOR_B2" },
+        "15": { "name": "SENS_B", "net": "GND" }
+      },
+      "notes": "Dual full-bridge driver - 2A per channel, heatsink required"
+    },
+    {
+      "id": "D1",
+      "type": "diode",
+      "package": "DO-214AC",
+      "value": "1N5819",
+      "description": "Flyback diode for motor A output 1",
+      "params": {
+        "part_number": "1N5819",
+        "voltage_rating_v": 40,
+        "current_rating_a": 1,
+        "type": "Schottky"
+      },
+      "pins": {
+        "cathode": { "net": "VM" },
+        "anode": { "net": "MOTOR_A1" }
+      }
+    },
+    {
+      "id": "D2",
+      "type": "diode",
+      "package": "DO-214AC",
+      "value": "1N5819",
+      "description": "Flyback diode for motor A output 2",
+      "params": {
+        "part_number": "1N5819",
+        "voltage_rating_v": 40,
+        "current_rating_a": 1,
+        "type": "Schottky"
+      },
+      "pins": {
+        "cathode": { "net": "VM" },
+        "anode": { "net": "MOTOR_A2" }
+      }
+    },
+    {
+      "id": "D3",
+      "type": "diode",
+      "package": "DO-214AC",
+      "value": "1N5819",
+      "description": "Flyback diode for motor B output 1",
+      "params": {
+        "part_number": "1N5819",
+        "voltage_rating_v": 40,
+        "current_rating_a": 1,
+        "type": "Schottky"
+      },
+      "pins": {
+        "cathode": { "net": "VM" },
+        "anode": { "net": "MOTOR_B1" }
+      }
+    },
+    {
+      "id": "D4",
+      "type": "diode",
+      "package": "DO-214AC",
+      "value": "1N5819",
+      "description": "Flyback diode for motor B output 2",
+      "params": {
+        "part_number": "1N5819",
+        "voltage_rating_v": 40,
+        "current_rating_a": 1,
+        "type": "Schottky"
+      },
+      "pins": {
+        "cathode": { "net": "VM" },
+        "anode": { "net": "MOTOR_B2" }
+      }
+    },
+    {
+      "id": "C1",
+      "type": "capacitor",
+      "package": "RADIAL_5MM",
+      "value": "100µF",
+      "description": "Motor power supply bulk capacitor",
+      "params": {
+        "capacitance_f": 1e-4,
+        "voltage_rating_v": 50,
+        "dielectric": "Electrolytic"
+      },
+      "pins": {
+        "1": { "net": "VM" },
+        "2": { "net": "GND" }
+      },
+      "notes": "Large capacitor for motor current spikes"
+    },
+    {
+      "id": "C2",
+      "type": "capacitor",
+      "package": "0805",
+      "value": "100nF",
+      "description": "Logic supply decoupling",
+      "params": {
+        "capacitance_f": 1e-7,
+        "voltage_rating_v": 16,
+        "dielectric": "X7R"
+      },
+      "pins": {
+        "1": { "net": "VCC_5V" },
+        "2": { "net": "GND" }
+      },
+      "notes": "Place close to VSS pin"
+    },
+    {
+      "id": "R1",
+      "type": "resistor",
+      "package": "0805",
+      "value": "10K",
+      "description": "Pull-up for IN1",
+      "params": {
+        "resistance_ohm": 10000,
+        "power_rating_w": 0.125,
+        "tolerance": "5%"
+      },
+      "pins": {
+        "1": { "net": "VCC_5V" },
+        "2": { "net": "IN1" }
+      }
+    },
+    {
+      "id": "R2",
+      "type": "resistor",
+      "package": "0805",
+      "value": "10K",
+      "description": "Pull-up for IN2",
+      "params": {
+        "resistance_ohm": 10000,
+        "power_rating_w": 0.125,
+        "tolerance": "5%"
+      },
+      "pins": {
+        "1": { "net": "VCC_5V" },
+        "2": { "net": "IN2" }
+      }
+    },
+    {
+      "id": "R3",
+      "type": "resistor",
+      "package": "0805",
+      "value": "10K",
+      "description": "Pull-up for IN3",
+      "params": {
+        "resistance_ohm": 10000,
+        "power_rating_w": 0.125,
+        "tolerance": "5%"
+      },
+      "pins": {
+        "1": { "net": "VCC_5V" },
+        "2": { "net": "IN3" }
+      }
+    },
+    {
+      "id": "R4",
+      "type": "resistor",
+      "package": "0805",
+      "value": "10K",
+      "description": "Pull-up for IN4",
+      "params": {
+        "resistance_ohm": 10000,
+        "power_rating_w": 0.125,
+        "tolerance": "5%"
+      },
+      "pins": {
+        "1": { "net": "VCC_5V" },
+        "2": { "net": "IN4" }
+      }
+    },
+    {
+      "id": "J1",
+      "type": "connector",
+      "package": "SCREW_TERMINAL_2P",
+      "description": "Motor A connector",
+      "params": {
+        "num_pins": 2
+      },
+      "pins": {
+        "1": { "net": "MOTOR_A1" },
+        "2": { "net": "MOTOR_A2" }
+      }
+    },
+    {
+      "id": "J2",
+      "type": "connector",
+      "package": "SCREW_TERMINAL_2P",
+      "description": "Motor B connector",
+      "params": {
+        "num_pins": 2
+      },
+      "pins": {
+        "1": { "net": "MOTOR_B1" },
+        "2": { "net": "MOTOR_B2" }
+      }
+    },
+    {
+      "id": "J3",
+      "type": "connector",
+      "package": "HEADER_2.54MM",
+      "description": "Control signals connector",
+      "params": {
+        "num_pins": 6,
+        "pitch_mm": 2.54
+      },
+      "pins": {
+        "1": { "name": "IN1", "net": "IN1" },
+        "2": { "name": "IN2", "net": "IN2" },
+        "3": { "name": "ENA", "net": "ENA" },
+        "4": { "name": "IN3", "net": "IN3" },
+        "5": { "name": "IN4", "net": "IN4" },
+        "6": { "name": "ENB", "net": "ENB" }
+      },
+      "notes": "Connect to microcontroller PWM and GPIO pins"
+    },
+    {
+      "id": "J4",
+      "type": "connector",
+      "package": "SCREW_TERMINAL_2P",
+      "description": "Motor power supply",
+      "params": {
+        "num_pins": 2
+      },
+      "pins": {
+        "1": { "name": "VM", "net": "VM" },
+        "2": { "name": "GND", "net": "GND" }
+      },
+      "notes": "7-12V DC for motors"
+    }
+  ],
+  "nets": [
+    {
+      "id": "VM",
+      "name": "VM",
+      "connections": [
+        { "component": "J4", "pin": "1" },
+        { "component": "U1", "pin": "4" },
+        { "component": "C1", "pin": "1" },
+        { "component": "D1", "pin": "cathode" },
+        { "component": "D2", "pin": "cathode" },
+        { "component": "D3", "pin": "cathode" },
+        { "component": "D4", "pin": "cathode" }
+      ],
+      "design_notes": "Motor power supply - use thick traces (>1mm)"
+    },
+    {
+      "id": "VCC_5V",
+      "name": "5V",
+      "connections": [
+        { "component": "U1", "pin": "9" },
+        { "component": "C2", "pin": "1" },
+        { "component": "R1", "pin": "1" },
+        { "component": "R2", "pin": "1" },
+        { "component": "R3", "pin": "1" },
+        { "component": "R4", "pin": "1" }
+      ],
+      "design_notes": "Logic supply - 5V regulated"
+    },
+    {
+      "id": "GND",
+      "name": "GND",
+      "connections": [
+        { "component": "J4", "pin": "2" },
+        { "component": "U1", "pin": "8" },
+        { "component": "U1", "pin": "1" },
+        { "component": "U1", "pin": "15" },
+        { "component": "C1", "pin": "2" },
+        { "component": "C2", "pin": "2" }
+      ],
+      "design_notes": "Common ground - use ground plane"
+    },
+    {
+      "id": "MOTOR_A1",
+      "connections": [
+        { "component": "U1", "pin": "2" },
+        { "component": "D1", "pin": "anode" },
+        { "component": "J1", "pin": "1" }
+      ]
+    },
+    {
+      "id": "MOTOR_A2",
+      "connections": [
+        { "component": "U1", "pin": "3" },
+        { "component": "D2", "pin": "anode" },
+        { "component": "J1", "pin": "2" }
+      ]
+    },
+    {
+      "id": "MOTOR_B1",
+      "connections": [
+        { "component": "U1", "pin": "13" },
+        { "component": "D3", "pin": "anode" },
+        { "component": "J2", "pin": "1" }
+      ]
+    },
+    {
+      "id": "MOTOR_B2",
+      "connections": [
+        { "component": "U1", "pin": "14" },
+        { "component": "D4", "pin": "anode" },
+        { "component": "J2", "pin": "2" }
+      ]
+    },
+    {
+      "id": "IN1",
+      "connections": [
+        { "component": "U1", "pin": "5" },
+        { "component": "R1", "pin": "2" },
+        { "component": "J3", "pin": "1" }
+      ]
+    },
+    {
+      "id": "IN2",
+      "connections": [
+        { "component": "U1", "pin": "7" },
+        { "component": "R2", "pin": "2" },
+        { "component": "J3", "pin": "2" }
+      ]
+    },
+    {
+      "id": "IN3",
+      "connections": [
+        { "component": "U1", "pin": "10" },
+        { "component": "R3", "pin": "2" },
+        { "component": "J3", "pin": "4" }
+      ]
+    },
+    {
+      "id": "IN4",
+      "connections": [
+        { "component": "U1", "pin": "12" },
+        { "component": "R4", "pin": "2" },
+        { "component": "J3", "pin": "5" }
+      ]
+    },
+    {
+      "id": "ENA",
+      "connections": [
+        { "component": "U1", "pin": "6" },
+        { "component": "J3", "pin": "3" }
+      ]
+    },
+    {
+      "id": "ENB",
+      "connections": [
+        { "component": "U1", "pin": "11" },
+        { "component": "J3", "pin": "6" }
+      ]
+    }
+  ],
+  "properties": {
+    "motor_voltage_range": "7-12V",
+    "logic_voltage": "5V",
+    "max_current_per_channel": "2A",
+    "pwm_frequency_khz": "1-25"
+  },
+  "design_rules": {
+    "thermal": {
+      "max_ambient_temp_c": 50,
+      "heatsink_required": true,
+      "power_dissipation_max_w": 20
+    },
+    "emi_compliance": {
+      "ground_plane": "Required on bottom layer",
+      "trace_spacing_mm": 0.3,
+      "power_trace_width_mm": 1.5
+    }
+  },
+  "notes": [
+    "H-bridge motor driver circuit using L298N dual full-bridge driver",
+    "Flyback diodes (D1-D4) protect against inductive kickback from motors",
+    "Use Schottky diodes for lower forward voltage and faster switching",
+    "C1 (100µF) handles motor current spikes and reduces EMI",
+    "Pull-up resistors ensure defined logic levels when microcontroller is not driving",
+    "ENA and ENB are PWM inputs for speed control (0-100%)",
+    "IN1/IN2 control Motor A direction, IN3/IN4 control Motor B direction",
+    "Motor direction: IN1=HIGH, IN2=LOW = Forward; IN1=LOW, IN2=HIGH = Reverse",
+    "Power dissipation: ~2W per amp at 12V - heatsink mandatory",
+    "Recommended motor power: 7-12V DC, max 2A per channel",
+    "Use thick traces (>1mm) for motor power paths",
+    "Ground plane strongly recommended for EMI reduction"
+  ]
+}

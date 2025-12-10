@@ -1,0 +1,345 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://circuit-format.org/schema/v1.0/circuit.schema.json",
+  "title": "Circuit Format Schema",
+  "description": "JSON Schema for .circuit.json electronic circuit description format",
+  "type": "object",
+  "required": ["version", "metadata", "components"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Circuit format version",
+      "pattern": "^\\d+\\.\\d+$",
+      "examples": ["1.0", "2.0"]
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Circuit metadata and project information",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Circuit name",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "description": "Circuit description"
+        },
+        "author": {
+          "type": "string",
+          "description": "Author name or organization"
+        },
+        "version": {
+          "type": "string",
+          "description": "Circuit design version"
+        },
+        "created": {
+          "type": "string",
+          "description": "Creation date (ISO 8601 or YYYY-MM-DD)",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+        },
+        "modified": {
+          "type": "string",
+          "description": "Last modification date (ISO 8601 or YYYY-MM-DD)",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+        },
+        "tags": {
+          "type": "array",
+          "description": "Circuit tags for categorization",
+          "items": {
+            "type": "string"
+          }
+        },
+        "license": {
+          "type": "string",
+          "description": "Circuit design license"
+        }
+      }
+    },
+    "components": {
+      "type": "array",
+      "description": "List of electronic components in the circuit",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "type"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique component identifier (e.g., R1, C1, U1)",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+          },
+          "type": {
+            "type": "string",
+            "description": "Component type",
+            "enum": [
+              "resistor", "capacitor", "inductor", "diode", "led", "transistor",
+              "ic", "connector", "switch", "relay", "transformer", "crystal",
+              "fuse", "battery", "power_supply", "ground", "test_point",
+              "mounting_hole", "jumper", "header", "socket", "potentiometer",
+              "varistor", "thermistor", "photodiode", "optocoupler", "display",
+              "buzzer", "speaker", "microphone", "motor", "sensor", "antenna",
+              "oscillator", "voltage_regulator", "bridge_rectifier", "other"
+            ]
+          },
+          "package": {
+            "type": "string",
+            "description": "Component package/footprint (e.g., 0805, SOIC8, TO-220)"
+          },
+          "value": {
+            "type": "string",
+            "description": "Component value (e.g., 10K, 100nF, 5V)"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable component description"
+          },
+          "params": {
+            "type": "object",
+            "description": "Component-specific parameters",
+            "properties": {
+              "resistance_ohm": { "type": "number", "minimum": 0 },
+              "capacitance_f": { "type": "number", "minimum": 0 },
+              "inductance_h": { "type": "number", "minimum": 0 },
+              "voltage_rating_v": { "type": "number", "minimum": 0 },
+              "current_rating_a": { "type": "number", "minimum": 0 },
+              "power_rating_w": { "type": "number", "minimum": 0 },
+              "tolerance": { "type": "string" },
+              "forward_voltage_v": { "type": "number" },
+              "forward_current_ma": { "type": "number" },
+              "color": { "type": "string" },
+              "manufacturer": { "type": "string" },
+              "part_number": { "type": "string" },
+              "datasheet_url": { "type": "string", "format": "uri" },
+              "num_pins": { "type": "integer", "minimum": 1 },
+              "pitch_mm": { "type": "number", "minimum": 0 },
+              "mounting": { "type": "string", "enum": ["smd", "through_hole", "surface_mount"] },
+              "dielectric": { "type": "string" }
+            },
+            "additionalProperties": true
+          },
+          "pins": {
+            "type": "object",
+            "description": "Component pin definitions with positions and net connections",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "x": { "type": "number", "description": "X coordinate (mm)" },
+                "y": { "type": "number", "description": "Y coordinate (mm)" },
+                "z": { "type": "number", "description": "Z coordinate (mm)" },
+                "net": { "type": "string", "description": "Net name this pin connects to" },
+                "name": { "type": "string", "description": "Pin name/label" },
+                "number": { "type": ["string", "integer"], "description": "Pin number" }
+              }
+            }
+          },
+          "model_3d": {
+            "type": "object",
+            "description": "3D model information for visualization",
+            "properties": {
+              "generator": {
+                "type": "string",
+                "description": "Generator function name for creating 3D model"
+              },
+              "file": {
+                "type": "string",
+                "description": "Path to 3D model file (STEP, STL, etc.)"
+              },
+              "position": {
+                "type": "object",
+                "properties": {
+                  "x": { "type": "number" },
+                  "y": { "type": "number" },
+                  "z": { "type": "number" }
+                },
+                "required": ["x", "y", "z"]
+              },
+              "rotation": {
+                "type": "object",
+                "properties": {
+                  "x": { "type": "number" },
+                  "y": { "type": "number" },
+                  "z": { "type": "number" }
+                },
+                "required": ["x", "y", "z"]
+              },
+              "scale": {
+                "type": "object",
+                "properties": {
+                  "x": { "type": "number", "minimum": 0 },
+                  "y": { "type": "number", "minimum": 0 },
+                  "z": { "type": "number", "minimum": 0 }
+                }
+              },
+              "params": {
+                "type": "object",
+                "description": "Parameters passed to 3D model generator",
+                "additionalProperties": true
+              }
+            }
+          },
+          "notes": {
+            "type": "string",
+            "description": "Design notes for this component"
+          },
+          "design_notes": {
+            "type": "string",
+            "description": "Design notes for this component"
+          }
+        }
+      }
+    },
+    "connections": {
+      "type": "array",
+      "description": "Point-to-point connections (deprecated - use nets instead)",
+      "items": {
+        "type": "object",
+        "required": ["from", "to"],
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "Source pin (format: ComponentID.pin)"
+          },
+          "to": {
+            "type": "string",
+            "description": "Destination pin (format: ComponentID.pin)"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Connection notes"
+          }
+        }
+      }
+    },
+    "nets": {
+      "type": "array",
+      "description": "Electrical nets connecting multiple pins",
+      "items": {
+        "type": "object",
+        "required": ["id", "connections"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique net identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable net name"
+          },
+          "connections": {
+            "type": "array",
+            "description": "List of connected pins",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["component", "pin"],
+              "properties": {
+                "component": {
+                  "type": "string",
+                  "description": "Component ID"
+                },
+                "pin": {
+                  "type": ["string", "integer"],
+                  "description": "Pin identifier"
+                }
+              }
+            }
+          },
+          "design_notes": {
+            "type": "string",
+            "description": "Design notes for this net"
+          }
+        }
+      }
+    },
+    "board": {
+      "type": "object",
+      "description": "PCB board specifications",
+      "properties": {
+        "dimensions": {
+          "type": "object",
+          "properties": {
+            "width": { "type": "number", "minimum": 0, "description": "Board width (mm)" },
+            "height": { "type": "number", "minimum": 0, "description": "Board height (mm)" },
+            "thickness": { "type": "number", "minimum": 0, "description": "Board thickness (mm)" }
+          }
+        },
+        "layers": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of copper layers"
+        },
+        "material": {
+          "type": "string",
+          "description": "Board material (e.g., FR4, aluminum)"
+        },
+        "finish": {
+          "type": "string",
+          "description": "Surface finish (e.g., HASL, ENIG)"
+        }
+      }
+    },
+    "design_rules": {
+      "type": "object",
+      "description": "Design rules and constraints",
+      "properties": {
+        "emi_compliance": {
+          "type": "object",
+          "properties": {
+            "standard": { "type": "string" },
+            "decoupling_strategy": { "type": "string" },
+            "ground_plane": { "type": "string" },
+            "trace_spacing_mm": { "type": "number", "minimum": 0 },
+            "power_trace_width_mm": { "type": "number", "minimum": 0 }
+          }
+        },
+        "thermal": {
+          "type": "object",
+          "properties": {
+            "max_ambient_temp_c": { "type": "number" },
+            "max_junction_temp_c": { "type": "number" }
+          }
+        }
+      }
+    },
+    "properties": {
+      "type": "object",
+      "description": "Circuit properties and calculated values",
+      "additionalProperties": true
+    },
+    "notes": {
+      "type": "array",
+      "description": "General circuit notes",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sim_config": {
+      "type": "object",
+      "description": "Simulation configuration",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["dc", "ac", "transient", "noise"]
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "blender_generation": {
+      "type": "object",
+      "description": "Blender 3D generation configuration",
+      "properties": {
+        "script": { "type": "string" },
+        "function": { "type": "string" },
+        "render_options": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    }
+  }
+}

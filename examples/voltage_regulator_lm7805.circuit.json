@@ -1,0 +1,264 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "name": "LM7805 Linear Voltage Regulator",
+    "description": "5V linear voltage regulator with input/output filtering",
+    "author": "Circuit Project",
+    "created": "2024-12-08",
+    "tags": ["power", "regulator", "linear", "7805"],
+    "license": "MIT"
+  },
+  "components": [
+    {
+      "id": "U1",
+      "type": "voltage_regulator",
+      "package": "TO-220",
+      "description": "LM7805 5V linear regulator",
+      "params": {
+        "part_number": "LM7805",
+        "manufacturer": "Texas Instruments",
+        "voltage_in_max": 35,
+        "voltage_out": 5,
+        "current_max_a": 1.5,
+        "dropout_voltage_v": 2
+      },
+      "pins": {
+        "1": { "name": "VIN", "net": "VIN" },
+        "2": { "name": "GND", "net": "GND" },
+        "3": { "name": "VOUT", "net": "VOUT" }
+      },
+      "notes": "Requires 2V dropout, input voltage range: 7-35V"
+    },
+    {
+      "id": "C1",
+      "type": "capacitor",
+      "package": "RADIAL_5MM",
+      "value": "10µF",
+      "description": "Input bulk capacitor",
+      "params": {
+        "capacitance_f": 1e-5,
+        "voltage_rating_v": 50,
+        "dielectric": "Electrolytic"
+      },
+      "pins": {
+        "1": { "net": "VIN" },
+        "2": { "net": "GND" }
+      },
+      "notes": "Input filtering - electrolytic capacitor for bulk energy storage"
+    },
+    {
+      "id": "C2",
+      "type": "capacitor",
+      "package": "0805",
+      "value": "100nF",
+      "description": "Input decoupling capacitor",
+      "params": {
+        "capacitance_f": 1e-7,
+        "voltage_rating_v": 50,
+        "dielectric": "X7R"
+      },
+      "pins": {
+        "1": { "net": "VIN" },
+        "2": { "net": "GND" }
+      },
+      "notes": "High frequency noise filtering"
+    },
+    {
+      "id": "C3",
+      "type": "capacitor",
+      "package": "RADIAL_5MM",
+      "value": "10µF",
+      "description": "Output bulk capacitor",
+      "params": {
+        "capacitance_f": 1e-5,
+        "voltage_rating_v": 16,
+        "dielectric": "Electrolytic"
+      },
+      "pins": {
+        "1": { "net": "VOUT" },
+        "2": { "net": "GND" }
+      },
+      "notes": "Output filtering for load transients"
+    },
+    {
+      "id": "C4",
+      "type": "capacitor",
+      "package": "0805",
+      "value": "100nF",
+      "description": "Output decoupling capacitor",
+      "params": {
+        "capacitance_f": 1e-7,
+        "voltage_rating_v": 16,
+        "dielectric": "X7R"
+      },
+      "pins": {
+        "1": { "net": "VOUT" },
+        "2": { "net": "GND" }
+      },
+      "notes": "High frequency output filtering"
+    },
+    {
+      "id": "D1",
+      "type": "diode",
+      "package": "DO-41",
+      "value": "1N4007",
+      "description": "Reverse polarity protection",
+      "params": {
+        "part_number": "1N4007",
+        "voltage_rating_v": 1000,
+        "current_rating_a": 1,
+        "forward_voltage_v": 0.7
+      },
+      "pins": {
+        "anode": { "net": "VIN_RAW" },
+        "cathode": { "net": "VIN" }
+      },
+      "notes": "Protects against reverse polarity"
+    },
+    {
+      "id": "LED1",
+      "type": "led",
+      "package": "0805",
+      "description": "Power indicator LED",
+      "params": {
+        "color": "green",
+        "forward_voltage_v": 2.0,
+        "forward_current_ma": 10
+      },
+      "pins": {
+        "anode": { "net": "VOUT" },
+        "cathode": { "net": "LED_CATHODE" }
+      }
+    },
+    {
+      "id": "R1",
+      "type": "resistor",
+      "package": "0805",
+      "value": "330Ω",
+      "description": "LED current limiting resistor",
+      "params": {
+        "resistance_ohm": 330,
+        "power_rating_w": 0.125,
+        "tolerance": "5%"
+      },
+      "pins": {
+        "1": { "net": "LED_CATHODE" },
+        "2": { "net": "GND" }
+      },
+      "notes": "Limits LED current to ~9mA at 5V"
+    },
+    {
+      "id": "J1",
+      "type": "connector",
+      "package": "BARREL_JACK",
+      "description": "DC power input",
+      "params": {
+        "num_pins": 2,
+        "voltage_rating_v": 30
+      },
+      "pins": {
+        "1": { "name": "VIN", "net": "VIN_RAW" },
+        "2": { "name": "GND", "net": "GND" }
+      },
+      "notes": "2.1mm barrel jack connector"
+    },
+    {
+      "id": "J2",
+      "type": "connector",
+      "package": "HEADER_2.54MM",
+      "description": "Regulated output connector",
+      "params": {
+        "num_pins": 2,
+        "pitch_mm": 2.54
+      },
+      "pins": {
+        "1": { "name": "5V", "net": "VOUT" },
+        "2": { "name": "GND", "net": "GND" }
+      },
+      "notes": "Output header for 5V regulated power"
+    }
+  ],
+  "nets": [
+    {
+      "id": "VIN_RAW",
+      "name": "VIN_RAW",
+      "connections": [
+        { "component": "J1", "pin": "1" },
+        { "component": "D1", "pin": "anode" }
+      ],
+      "design_notes": "Unregulated input voltage (7-12V typical)"
+    },
+    {
+      "id": "VIN",
+      "name": "VIN",
+      "connections": [
+        { "component": "D1", "pin": "cathode" },
+        { "component": "U1", "pin": "1" },
+        { "component": "C1", "pin": "1" },
+        { "component": "C2", "pin": "1" }
+      ],
+      "design_notes": "Protected input voltage to regulator"
+    },
+    {
+      "id": "VOUT",
+      "name": "5V",
+      "connections": [
+        { "component": "U1", "pin": "3" },
+        { "component": "C3", "pin": "1" },
+        { "component": "C4", "pin": "1" },
+        { "component": "LED1", "pin": "anode" },
+        { "component": "J2", "pin": "1" }
+      ],
+      "design_notes": "Regulated 5V output - max 1.5A"
+    },
+    {
+      "id": "GND",
+      "name": "GND",
+      "connections": [
+        { "component": "J1", "pin": "2" },
+        { "component": "U1", "pin": "2" },
+        { "component": "C1", "pin": "2" },
+        { "component": "C2", "pin": "2" },
+        { "component": "C3", "pin": "2" },
+        { "component": "C4", "pin": "2" },
+        { "component": "R1", "pin": "2" },
+        { "component": "J2", "pin": "2" }
+      ],
+      "design_notes": "Common ground - star ground topology recommended"
+    },
+    {
+      "id": "LED_CATHODE",
+      "connections": [
+        { "component": "LED1", "pin": "cathode" },
+        { "component": "R1", "pin": "1" }
+      ]
+    }
+  ],
+  "properties": {
+    "input_voltage_min": "7V",
+    "input_voltage_max": "35V",
+    "input_voltage_typical": "9-12V",
+    "output_voltage": "5V",
+    "output_current_max": "1.5A",
+    "efficiency_typical": "55%",
+    "power_dissipation_max": "15W"
+  },
+  "design_rules": {
+    "thermal": {
+      "max_ambient_temp_c": 70,
+      "heatsink_required": true,
+      "thermal_resistance_case_to_ambient": 5
+    }
+  },
+  "notes": [
+    "Classic LM7805 linear regulator design with proper filtering",
+    "Input voltage should be 2V above output (7V minimum) for proper regulation",
+    "Heat dissipation: P = (Vin - Vout) × Iload",
+    "Example: (12V - 5V) × 1A = 7W - heatsink required",
+    "C1 and C3 should be placed close to regulator",
+    "C2 and C4 provide high-frequency filtering",
+    "Use star grounding with C1-GND connection as star point",
+    "LED indicates power is on and regulated",
+    "D1 provides reverse polarity protection"
+  ]
+}
