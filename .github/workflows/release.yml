@@ -1,0 +1,103 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install build twine
+        
+    - name: Build package
+      run: |
+        python -m build
+        
+    - name: Get version from tag
+      id: get_version
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "Tag version: $VERSION"
+        
+    - name: Generate changelog
+      id: changelog
+      run: |
+        # Get commits since last tag
+        PREVIOUS_TAG=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1) 2>/dev/null || echo "")
+        
+        if [ -z "$PREVIOUS_TAG" ]; then
+          COMMITS=$(git log --oneline --pretty=format:"- %s (%h)" HEAD)
+        else
+          COMMITS=$(git log --oneline --pretty=format:"- %s (%h)" $PREVIOUS_TAG..HEAD)
+        fi
+        
+        # Save to file for release notes
+        cat > RELEASE_NOTES.md << EOF
+        ## Changes in v${{ steps.get_version.outputs.VERSION }}
+        
+        $COMMITS
+        
+        ## Installation
+        
+        \`\`\`bash
+        pip install circuit-cli
+        \`\`\`
+        
+        ## Usage
+        
+        \`\`\`bash
+        circuit validate mycircuit.circuit.json
+        circuit export mycircuit.circuit.json --format altium
+        \`\`\`
+        
+        See [README.md](https://github.com/Blackmvmba88/circuit/blob/main/README.md) for full documentation.
+        EOF
+        
+        cat RELEASE_NOTES.md
+        
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        body_path: RELEASE_NOTES.md
+        files: |
+          dist/*
+          schema/circuit.schema.json
+          examples/*.circuit.json
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Publish to PyPI
+      continue-on-error: true
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      run: |
+        if [ -n "$TWINE_PASSWORD" ]; then
+          python -m twine upload dist/*
+        else
+          echo "⚠️  PYPI_TOKEN not set, skipping PyPI publish"
+        fi
