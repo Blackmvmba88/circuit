@@ -1,0 +1,298 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://circuit-project.org/schemas/circuit-1.0.json",
+  "title": "Circuit Format Schema",
+  "description": "JSON schema for .circuit.json electronic circuit design files",
+  "type": "object",
+  "required": ["metadata", "components"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Circuit format version",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Circuit name",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "description": "Circuit description"
+        },
+        "author": {
+          "type": "string",
+          "description": "Circuit author"
+        },
+        "version": {
+          "type": "string",
+          "description": "Circuit version"
+        },
+        "created": {
+          "type": "string",
+          "description": "Creation date"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tags for categorization"
+        }
+      }
+    },
+    "components": {
+      "type": "array",
+      "description": "List of electronic components",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "type"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique component identifier",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+          },
+          "type": {
+            "type": "string",
+            "description": "Component type",
+            "enum": [
+              "resistor", "capacitor", "inductor", "diode", "led", "transistor",
+              "ic", "connector", "power_supply", "ground", "switch", "relay",
+              "transformer", "fuse", "crystal", "battery", "motor", "speaker",
+              "microphone", "sensor", "display", "button", "potentiometer"
+            ]
+          },
+          "value": {
+            "type": "string",
+            "description": "Component value (e.g., '220Ω', '10µF')"
+          },
+          "package": {
+            "type": "string",
+            "description": "Component package type (e.g., '0805', 'SOIC8')"
+          },
+          "description": {
+            "type": "string",
+            "description": "Component description"
+          },
+          "tolerance": {
+            "type": "string",
+            "description": "Component tolerance (e.g., '5%', '10%')"
+          },
+          "power": {
+            "type": "string",
+            "description": "Power rating (e.g., '0.25W')"
+          },
+          "voltage": {
+            "type": "string",
+            "description": "Voltage rating"
+          },
+          "color": {
+            "type": "string",
+            "description": "LED color or component color coding"
+          },
+          "forward_voltage": {
+            "type": "string",
+            "description": "Forward voltage for diodes/LEDs"
+          },
+          "forward_current": {
+            "type": "string",
+            "description": "Forward current rating"
+          },
+          "params": {
+            "type": "object",
+            "description": "Additional component parameters"
+          },
+          "pins": {
+            "type": "object",
+            "description": "Pin definitions and positions",
+            "patternProperties": {
+              ".*": {
+                "type": "object",
+                "properties": {
+                  "x": { "type": "number" },
+                  "y": { "type": "number" },
+                  "net": { "type": "string" }
+                }
+              }
+            }
+          },
+          "model_3d": {
+            "type": "object",
+            "description": "3D model information",
+            "properties": {
+              "generator": { "type": "string" },
+              "position": {
+                "type": "object",
+                "properties": {
+                  "x": { "type": "number" },
+                  "y": { "type": "number" },
+                  "z": { "type": "number" }
+                }
+              },
+              "rotation": {
+                "type": "object",
+                "properties": {
+                  "x": { "type": "number" },
+                  "y": { "type": "number" },
+                  "z": { "type": "number" }
+                }
+              },
+              "params": { "type": "object" }
+            }
+          },
+          "notes": {
+            "type": "string",
+            "description": "Component notes"
+          },
+          "design_notes": {
+            "type": "string",
+            "description": "Design notes"
+          }
+        }
+      }
+    },
+    "connections": {
+      "type": "array",
+      "description": "Component connections (legacy format)",
+      "items": {
+        "type": "object",
+        "required": ["from", "to"],
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "Source connection point"
+          },
+          "to": {
+            "type": "string",
+            "description": "Destination connection point"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Connection notes"
+          }
+        }
+      }
+    },
+    "nets": {
+      "type": "array",
+      "description": "Network definitions",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Net identifier"
+          },
+          "name": {
+            "type": "string",
+            "description": "Net name"
+          },
+          "connections": {
+            "type": "array",
+            "description": "Connected component pins",
+            "items": {
+              "type": "object",
+              "required": ["component", "pin"],
+              "properties": {
+                "component": {
+                  "type": "string",
+                  "description": "Component ID"
+                },
+                "pin": {
+                  "type": "string",
+                  "description": "Pin identifier"
+                }
+              }
+            }
+          },
+          "design_notes": {
+            "type": "string",
+            "description": "Net design notes"
+          }
+        }
+      }
+    },
+    "board": {
+      "type": "object",
+      "description": "PCB board specifications",
+      "properties": {
+        "dimensions": {
+          "type": "object",
+          "properties": {
+            "width": { "type": "number" },
+            "height": { "type": "number" },
+            "thickness": { "type": "number" },
+            "unit": { "type": "string" }
+          }
+        },
+        "material": {
+          "type": "string",
+          "description": "Board material (e.g., 'FR4')"
+        },
+        "layers": {
+          "type": "integer",
+          "description": "Number of copper layers",
+          "minimum": 1
+        },
+        "model_3d": {
+          "type": "object",
+          "description": "3D model for board"
+        }
+      }
+    },
+    "design_rules": {
+      "type": "object",
+      "description": "Design rules and constraints",
+      "properties": {
+        "emi_compliance": {
+          "type": "object",
+          "properties": {
+            "standard": { "type": "string" },
+            "decoupling_strategy": { "type": "string" },
+            "ground_plane": { "type": "string" },
+            "trace_spacing_mm": { "type": "number" },
+            "power_trace_width_mm": { "type": "number" }
+          }
+        },
+        "thermal": {
+          "type": "object",
+          "properties": {
+            "max_ambient_temp_c": { "type": "number" },
+            "max_junction_temp_c": { "type": "number" }
+          }
+        }
+      }
+    },
+    "properties": {
+      "type": "object",
+      "description": "Circuit properties and calculations"
+    },
+    "notes": {
+      "type": "array",
+      "description": "General circuit notes",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sim_config": {
+      "type": "object",
+      "description": "Simulation configuration"
+    },
+    "blender_generation": {
+      "type": "object",
+      "description": "Blender 3D generation configuration"
+    }
+  }
+}
