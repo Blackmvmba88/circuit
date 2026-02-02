@@ -55,7 +55,7 @@ class AltiumExporter:
         
         try:
             # Write to temporary file
-            with os.fdopen(temp_fd, 'w', encoding='utf-8', newline='') as f:
+            with os.fdopen(temp_fd, 'w', encoding='utf-8') as f:
                 f.write(content)
                 # Ensure data is written to disk
                 f.flush()

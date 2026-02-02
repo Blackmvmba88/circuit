@@ -16,7 +16,7 @@ from pathlib import Path
 import sys
 
 # Add src directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+sys.path.insert(0, str(Path(__file__).parent / 'src'))
 
 from circuit.persistence import (
     CircuitPersistence, 
@@ -225,13 +225,8 @@ class TestCircuitPersistence(unittest.TestCase):
     
     def test_multiplatform_path_handling(self):
         """Test that paths work correctly across platforms."""
-        # Test with different path separators
-        if os.name == 'nt':
-            # Windows-style path
-            file_path = os.path.join(self.temp_dir, "subdir", "test.circuit.json")
-        else:
-            # POSIX-style path
-            file_path = os.path.join(self.temp_dir, "subdir", "test.circuit.json")
+        # Test with subdirectory path
+        file_path = os.path.join(self.temp_dir, "subdir", "test.circuit.json")
         
         # Should create parent directories
         self.persistence.save_circuit(file_path, self.sample_circuit)

@@ -102,7 +102,7 @@ class CircuitPersistence:
         last_error = None
         for attempt in range(self.max_retries):
             try:
-                with open(path, 'r', encoding='utf-8', newline='') as f:
+                with open(path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                 
                 # Validate data if validator provided
@@ -180,7 +180,7 @@ class CircuitPersistence:
         
         try:
             # Write to temporary file
-            with os.fdopen(temp_fd, 'w', encoding='utf-8', newline='') as f:
+            with os.fdopen(temp_fd, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
                 # Ensure data is written to disk
                 f.flush()
@@ -240,7 +240,7 @@ class CircuitPersistence:
             if not path.exists() or not path.is_file():
                 return False
             
-            with open(path, 'r', encoding='utf-8', newline='') as f:
+            with open(path, 'r', encoding='utf-8') as f:
                 json.load(f)
             
             return True
