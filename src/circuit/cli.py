@@ -13,6 +13,8 @@ Commands:
 
 import sys
 import json
+import os
+import tempfile
 import click
 from pathlib import Path
 from rich.console import Console
@@ -23,6 +25,7 @@ from rich import print as rprint
 
 from .validator import CircuitValidator
 from .diff import CircuitDiff
+from .persistence import CircuitPersistence, PersistenceError
 
 console = Console()
 
@@ -58,9 +61,9 @@ def validate(circuit_file, verbose, schema, output_json):
         circuit validate power_supply.circuit.json
     """
     try:
-        # Load circuit file
-        with open(circuit_file, 'r', encoding='utf-8') as f:
-            circuit_data = json.load(f)
+        # Load circuit file using safe persistence
+        persistence = CircuitPersistence()
+        circuit_data = persistence.load_circuit(circuit_file)
         
         # Create validator
         validator = CircuitValidator(circuit_data, schema_path=schema)
@@ -85,12 +88,8 @@ def validate(circuit_file, verbose, schema, output_json):
         # Exit with appropriate code
         sys.exit(0 if is_valid else 1)
         
-    except FileNotFoundError:
-        console.print(f"[red]❌ Error: File '{circuit_file}' not found[/red]")
-        sys.exit(1)
-    except json.JSONDecodeError as e:
-        console.print(f"[red]❌ Error: Invalid JSON in '{circuit_file}'[/red]")
-        console.print(f"[red]   {str(e)}[/red]")
+    except PersistenceError as e:
+        console.print(f"[red]❌ Error loading file: {str(e)}[/red]")
         sys.exit(1)
     except Exception as e:
         console.print(f"[red]❌ Unexpected error: {str(e)}[/red]")
@@ -120,12 +119,10 @@ def diff(old_file, new_file, verbose, output_json, summary):
         circuit diff v1.circuit.json v2.circuit.json
     """
     try:
-        # Load circuit files
-        with open(old_file, 'r', encoding='utf-8') as f:
-            old_circuit = json.load(f)
-        
-        with open(new_file, 'r', encoding='utf-8') as f:
-            new_circuit = json.load(f)
+        # Load circuit files using safe persistence
+        persistence = CircuitPersistence()
+        old_circuit = persistence.load_circuit(old_file)
+        new_circuit = persistence.load_circuit(new_file)
         
         # Create diff
         differ = CircuitDiff(old_circuit, new_circuit)
@@ -180,9 +177,9 @@ def export(circuit_file, format, output):
         circuit export myfile.circuit.json --format altium --output altium_export/
     """
     try:
-        # Load circuit file
-        with open(circuit_file, 'r', encoding='utf-8') as f:
-            circuit_data = json.load(f)
+        # Load circuit file using safe persistence
+        persistence = CircuitPersistence()
+        circuit_data = persistence.load_circuit(circuit_file)
         
         # Determine output path
         if not output:
@@ -380,8 +377,9 @@ def _display_diff_results(old_file, new_file, results, verbose, summary):
 
 
 def _export_bom(circuit_data, output):
-    """Export Bill of Materials to CSV."""
+    """Export Bill of Materials to CSV using safe persistence."""
     import csv
+    import tempfile
     
     components = circuit_data.get('components', [])
     
@@ -389,34 +387,64 @@ def _export_bom(circuit_data, output):
     if not output.endswith('.csv'):
         output = f"{output}.csv"
     
-    with open(output, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        
-        # Write header
-        writer.writerow(['Designator', 'Type', 'Value', 'Package', 'Description', 'Quantity'])
-        
-        # Group components
-        bom_groups = {}
-        for comp in components:
-            comp_type = comp.get('type', '')
-            value = comp.get('value', str(comp.get('params', {}).get('resistance_ohm', '')))
-            package = comp.get('package', '')
+    output_path = Path(output).resolve()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Use temporary file for atomic write
+    temp_fd, temp_path = tempfile.mkstemp(
+        dir=output_path.parent,
+        prefix=f".{output_path.name}.",
+        suffix=".tmp"
+    )
+    
+    try:
+        with os.fdopen(temp_fd, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
             
-            key = (comp_type, value, package)
-            if key not in bom_groups:
-                bom_groups[key] = {
-                    'designators': [],
-                    'description': comp.get('description', ''),
-                }
-            bom_groups[key]['designators'].append(comp.get('id', ''))
-        
-        # Write rows
-        for (comp_type, value, package), data in sorted(bom_groups.items()):
-            designators = ', '.join(data['designators'])
-            quantity = len(data['designators'])
-            description = data['description']
+            # Write header
+            writer.writerow(['Designator', 'Type', 'Value', 'Package', 'Description', 'Quantity'])
             
-            writer.writerow([designators, comp_type, value, package, description, quantity])
+            # Group components
+            bom_groups = {}
+            for comp in components:
+                comp_type = comp.get('type', '')
+                value = comp.get('value', str(comp.get('params', {}).get('resistance_ohm', '')))
+                package = comp.get('package', '')
+                
+                key = (comp_type, value, package)
+                if key not in bom_groups:
+                    bom_groups[key] = {
+                        'designators': [],
+                        'description': comp.get('description', ''),
+                    }
+                bom_groups[key]['designators'].append(comp.get('id', ''))
+            
+            # Write rows
+            for (comp_type, value, package), data in sorted(bom_groups.items()):
+                designators = ', '.join(data['designators'])
+                quantity = len(data['designators'])
+                description = data['description']
+                
+                writer.writerow([designators, comp_type, value, package, description, quantity])
+            
+            # Ensure data is written to disk
+            f.flush()
+            os.fsync(f.fileno())
+        
+        # Atomic rename
+        temp_file = Path(temp_path)
+        if os.name == 'nt' and output_path.exists():
+            temp_file.replace(output_path)
+        else:
+            temp_file.rename(output_path)
+            
+    except Exception as e:
+        # Clean up temp file on error
+        try:
+            Path(temp_path).unlink(missing_ok=True)
+        except:
+            pass
+        raise PersistenceError(f"Failed to export BOM: {e}")
 
 
 if __name__ == '__main__':
