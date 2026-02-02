@@ -47,6 +47,10 @@ Thumbs.db
 tmp/
 temp/
 
+# Circuit persistence backups and locks
+*.backup
+*.lock
+
 # Environment variables
 .env
 .env.local

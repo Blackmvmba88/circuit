@@ -187,9 +187,8 @@ def export(circuit_file, format, output):
         
         if format == 'altium':
             # Import and use Altium exporter
-            from pathlib import Path
             import sys
-            sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent / 'adapters'))
+            sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'adapters'))
             from circuit_to_altium import AltiumExporter
             
             exporter = AltiumExporter(circuit_data, output)
