@@ -423,6 +423,137 @@ def create_pcb_board(name="PCB", location=(0, 0, 0), size=(50, 50), thickness=1.
     return pcb
 
 
+def create_diode_smd_0805(name="Diode", location=(0, 0, 0)):
+    """
+    Create an SMD diode (0805 package).
+    
+    Args:
+        name: Component name
+        location: (x, y, z) position
+    
+    Returns:
+        Created object
+    """
+    # Create the body (black epoxy)
+    bpy.ops.mesh.primitive_cube_add(
+        size=1,
+        location=location
+    )
+    diode = bpy.context.active_object
+    diode.name = name
+    diode.scale = (2.0, 1.25, 0.8)
+    
+    # Black epoxy material
+    body_mat = create_material(f"{name}_body", (0.05, 0.05, 0.05), metallic=0.0, roughness=0.8)
+    diode.data.materials.append(body_mat)
+    
+    # Create cathode indicator (white/silver line)
+    bpy.ops.mesh.primitive_cube_add(
+        size=1,
+        location=(location[0] - 0.75, location[1], location[2])
+    )
+    cathode_mark = bpy.context.active_object
+    cathode_mark.name = f"{name}_cathode_mark"
+    cathode_mark.scale = (0.3, 1.25, 0.85)
+    cathode_mat = create_material(f"{name}_cathode", (0.9, 0.9, 0.9), metallic=0.1, roughness=0.5)
+    cathode_mark.data.materials.append(cathode_mat)
+    
+    # Create terminals
+    terminal_mat = create_material(f"{name}_terminal", (0.8, 0.8, 0.8), metallic=0.9, roughness=0.3)
+    
+    for side, x_offset in [("L", -0.85), ("R", 0.85)]:
+        bpy.ops.mesh.primitive_cube_add(
+            size=1,
+            location=(location[0] + x_offset, location[1], location[2] - 0.3)
+        )
+        terminal = bpy.context.active_object
+        terminal.name = f"{name}_terminal_{side}"
+        terminal.scale = (0.3, 1.25, 0.2)
+        terminal.data.materials.append(terminal_mat)
+    
+    # Group
+    bpy.ops.object.select_all(action='DESELECT')
+    for obj in bpy.context.scene.objects:
+        if obj.name.startswith(name):
+            obj.select_set(True)
+    bpy.context.view_layer.objects.active = diode
+    bpy.ops.object.join()
+    
+    return diode
+
+
+def create_voltage_regulator_to220(name="VoltageReg", location=(0, 0, 0)):
+    """
+    Create a TO-220 voltage regulator package (e.g., LM7805).
+    
+    Standard TO-220 dimensions:
+    - Body width: 10mm
+    - Body depth: 9mm
+    - Body height: 4.5mm
+    
+    Args:
+        name: Component name
+        location: (x, y, z) position
+    
+    Returns:
+        Created object
+    """
+    # Create the body (black plastic)
+    bpy.ops.mesh.primitive_cube_add(
+        size=1,
+        location=location
+    )
+    body = bpy.context.active_object
+    body.name = name
+    body.scale = (10, 9, 4.5)
+    
+    # Black plastic material
+    body_mat = create_material(f"{name}_body", (0.05, 0.05, 0.05), metallic=0.0, roughness=0.8)
+    body.data.materials.append(body_mat)
+    
+    # Create mounting tab (metal)
+    bpy.ops.mesh.primitive_cube_add(
+        size=1,
+        location=(location[0], location[1] + 5.5, location[2])
+    )
+    tab = bpy.context.active_object
+    tab.name = f"{name}_mounting_tab"
+    tab.scale = (10, 2, 0.3)
+    tab_mat = create_material(f"{name}_tab", (0.7, 0.7, 0.7), metallic=0.8, roughness=0.4)
+    tab.data.materials.append(tab_mat)
+    
+    # Create 3 pins
+    pin_mat = create_material(f"{name}_pins", (0.85, 0.85, 0.85), metallic=0.9, roughness=0.3)
+    
+    pin_spacing = 2.54
+    pin_width = 0.6
+    pin_length = 3.0
+    pin_thickness = 0.5
+    
+    for i, x_offset in enumerate([-pin_spacing, 0, pin_spacing]):
+        bpy.ops.mesh.primitive_cube_add(
+            size=1,
+            location=(location[0] + x_offset, location[1] - 5.5, location[2] - 2)
+        )
+        pin = bpy.context.active_object
+        pin.name = f"{name}_pin_{i+1}"
+        pin.scale = (pin_width, pin_length, pin_thickness)
+        pin.data.materials.append(pin_mat)
+    
+    # Group all
+    bpy.ops.object.select_all(action='DESELECT')
+    for obj in bpy.context.scene.objects:
+        if obj.name.startswith(name):
+            obj.select_set(True)
+    bpy.context.view_layer.objects.active = body
+    bpy.ops.object.join()
+    
+    return body
+    pcb.data.materials.append(pcb_mat)
+    
+    return pcb
+
+
 def create_example_circuit():
     """
     Create an example circuit with multiple components on a PCB.
@@ -537,6 +668,8 @@ def load_circuit_from_json(json_file_path):
         'ic': create_ic_soic8,
         'led': create_led_smd_0805,
         'connector': create_header_connector,
+        'diode': create_diode_smd_0805,
+        'voltage_regulator': create_voltage_regulator_to220,
     }
     
     # Create components
@@ -577,6 +710,8 @@ def load_circuit_from_json(json_file_path):
                 'create_ic_soic8': create_ic_soic8,
                 'create_led_smd_0805': create_led_smd_0805,
                 'create_header_connector': create_header_connector,
+                'create_diode_smd_0805': create_diode_smd_0805,
+                'create_voltage_regulator_to220': create_voltage_regulator_to220,
             }
             generator_func = func_map.get(generator_name)
         
@@ -623,6 +758,15 @@ def load_circuit_from_json(json_file_path):
                 num_pins = params.get('num_pins', 8)
                 generator_func(comp_id, location=location, num_pins=num_pins)
                 print(f"   ✅ {comp_id}: Connector {num_pins}-pin")
+            
+            elif comp_type == 'diode':
+                generator_func(comp_id, location=location)
+                print(f"   ✅ {comp_id}: Diode 0805")
+            
+            elif comp_type == 'voltage_regulator':
+                generator_func(comp_id, location=location)
+                part = component.get('part_number', component.get('value', 'TO-220'))
+                print(f"   ✅ {comp_id}: Voltage Regulator {part}")
             
             elif comp_type in ['power_supply', 'ground']:
                 # Special handling for power supply and ground - just markers

@@ -51,7 +51,7 @@ def test_json_loading(json_file_path):
     components = circuit_data.get('components', [])
     print(f"\n🔧 Found {len(components)} components:")
     
-    supported_types = ['resistor', 'capacitor', 'ic', 'led', 'connector']
+    supported_types = ['resistor', 'capacitor', 'ic', 'led', 'connector', 'diode', 'voltage_regulator']
     virtual_types = ['power_supply', 'ground']
     
     for component in components:
