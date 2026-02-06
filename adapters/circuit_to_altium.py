@@ -18,6 +18,7 @@ License: MIT
 import json
 import sys
 import os
+import tempfile
 from pathlib import Path
 from typing import Dict, List, Any
 from datetime import datetime
@@ -35,6 +36,44 @@ class AltiumExporter:
         self.components = circuit_data.get('components', [])
         self.nets = circuit_data.get('nets', [])
         self.board = circuit_data.get('board', {})
+    
+    def _atomic_write(self, file_path: Path, content: str):
+        """
+        Perform atomic write operation for text files.
+        
+        Writes to a temporary file first, then renames to target.
+        This ensures the target file is never in a partially written state.
+        """
+        # Create temporary file in same directory for atomic rename
+        temp_fd, temp_path = tempfile.mkstemp(
+            dir=file_path.parent,
+            prefix=f".{file_path.name}.",
+            suffix=".tmp"
+        )
+        
+        temp_file = Path(temp_path)
+        
+        try:
+            # Write to temporary file
+            with os.fdopen(temp_fd, 'w', encoding='utf-8') as f:
+                f.write(content)
+                # Ensure data is written to disk
+                f.flush()
+                os.fsync(f.fileno())
+            
+            # Atomic rename (POSIX) or replace (Windows)
+            if os.name == 'nt' and file_path.exists():
+                temp_file.replace(file_path)
+            else:
+                temp_file.rename(file_path)
+            
+        except Exception as e:
+            # Clean up temp file on error
+            try:
+                temp_file.unlink(missing_ok=True)
+            except:
+                pass
+            raise RuntimeError(f"Failed to write {file_path}: {e}")
         
     def export_all(self):
         """Export all Altium-compatible files."""
@@ -54,30 +93,33 @@ class AltiumExporter:
         """Export component library as CSV for Altium import."""
         output_file = self.output_dir / "component_library.csv"
         
+        # Build content
+        lines = []
         # Altium library CSV format
         # Format: Designator, Description, Footprint, Value, Manufacturer, Part Number, Quantity
-        with open(output_file, 'w', encoding='utf-8') as f:
-            # Write header
-            f.write("Designator,Description,Footprint,Value,Manufacturer,PartNumber,Type,Package\n")
+        lines.append("Designator,Description,Footprint,Value,Manufacturer,PartNumber,Type,Package\n")
+        
+        for comp in self.components:
+            designator = comp.get('id', '')
+            comp_type = comp.get('type', '')
+            package = comp.get('package', 'UNKNOWN')
+            description = comp.get('description', f'{comp_type.upper()}')
+            params = comp.get('params', {})
             
-            for comp in self.components:
-                designator = comp.get('id', '')
-                comp_type = comp.get('type', '')
-                package = comp.get('package', 'UNKNOWN')
-                description = comp.get('description', f'{comp_type.upper()}')
-                params = comp.get('params', {})
-                
-                # Determine value based on component type
-                value = self._get_component_value(comp_type, params)
-                
-                # Get manufacturer info if available
-                manufacturer = params.get('manufacturer', '')
-                part_number = params.get('part_number', '')
-                
-                # Map package to Altium footprint
-                footprint = self._map_package_to_footprint(package, comp_type)
-                
-                f.write(f'"{designator}","{description}","{footprint}","{value}","{manufacturer}","{part_number}","{comp_type}","{package}"\n')
+            # Determine value based on component type
+            value = self._get_component_value(comp_type, params)
+            
+            # Get manufacturer info if available
+            manufacturer = params.get('manufacturer', '')
+            part_number = params.get('part_number', '')
+            
+            # Map package to Altium footprint
+            footprint = self._map_package_to_footprint(package, comp_type)
+            
+            lines.append(f'"{designator}","{description}","{footprint}","{value}","{manufacturer}","{part_number}","{comp_type}","{package}"\n')
+        
+        # Write atomically
+        self._atomic_write(output_file, ''.join(lines))
         
         print(f"  ✓ Component library: {output_file}")
     
@@ -85,35 +127,38 @@ class AltiumExporter:
         """Export netlist in Protel format (Altium's native format)."""
         output_file = self.output_dir / "netlist.net"
         
-        with open(output_file, 'w', encoding='utf-8') as f:
-            # Protel netlist header
-            f.write("[\n")
-            f.write(f"  Circuit exported from {self.metadata.get('name', 'circuit')}\n")
-            f.write(f"  Generated: {datetime.now().isoformat()}\n")
-            f.write("  Format: Protel Netlist\n")
-            f.write("]\n\n")
+        lines = []
+        # Protel netlist header
+        lines.append("[\n")
+        lines.append(f"  Circuit exported from {self.metadata.get('name', 'circuit')}\n")
+        lines.append(f"  Generated: {datetime.now().isoformat()}\n")
+        lines.append("  Format: Protel Netlist\n")
+        lines.append("]\n\n")
+        
+        # Write components section
+        lines.append("(\n")
+        for comp in self.components:
+            designator = comp.get('id', '')
+            comp_type = comp.get('type', 'COMPONENT')
+            package = comp.get('package', 'UNKNOWN')
+            footprint = self._map_package_to_footprint(package, comp_type)
             
-            # Write components section
-            f.write("(\n")
-            for comp in self.components:
-                designator = comp.get('id', '')
-                comp_type = comp.get('type', 'COMPONENT')
-                package = comp.get('package', 'UNKNOWN')
-                footprint = self._map_package_to_footprint(package, comp_type)
-                
-                f.write(f" ( {designator} {footprint}\n")
-                
-                # Write pins for this component
-                pins = comp.get('pins', {})
-                for pin_name, pin_data in pins.items():
-                    net = pin_data.get('net', f'N{designator}_{pin_name}')
-                    # Sanitize net name to ensure valid identifiers
-                    net = net.replace(' ', '_').replace('-', '_').replace('+', 'P')
-                    f.write(f"  {pin_name} {net}\n")
-                
-                f.write(" )\n")
+            lines.append(f" ( {designator} {footprint}\n")
             
-            f.write(")\n")
+            # Write pins for this component
+            pins = comp.get('pins', {})
+            for pin_name, pin_data in pins.items():
+                net = pin_data.get('net', f'N{designator}_{pin_name}')
+                # Sanitize net name to ensure valid identifiers
+                net = net.replace(' ', '_').replace('-', '_').replace('+', 'P')
+                lines.append(f"  {pin_name} {net}\n")
+            
+            lines.append(" )\n")
+        
+        lines.append(")\n")
+        
+        # Write atomically
+        self._atomic_write(output_file, ''.join(lines))
         
         print(f"  ✓ Netlist (Protel format): {output_file}")
     

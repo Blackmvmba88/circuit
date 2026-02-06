@@ -41,6 +41,7 @@
 | **⚡ CLI Tool** | `circuit validate`, `export`, `render` commands | ✅ Ready |
 | **🔧 Altium Export** | Convert to Altium Designer format | ✅ Ready |
 | **🎨 3D Rendering** | Blender-based 3D visualization | ✅ Ready |
+| **💾 Robust Persistence** | Atomic writes, backups, multiplatform support | ✅ Ready |
 | **📦 KiCad Export** | Convert to KiCad format | 🚧 Planned |
 | **🌐 Web Visualizer** | Interactive circuit viewer | 🚧 Planned |
 | **🔁 CI/CD Integration** | GitHub Actions workflows | ✅ Ready |
@@ -221,6 +222,7 @@ examples/circuit_with_3d.circuit.json
 | [Format Specification](schema/circuit.schema.json) | JSON Schema definition |
 | [Altium Export Guide](docs/altium_export_guide.md) | Export to Altium Designer |
 | [Blender Usage Guide](docs/blender_usage_guide.md) | 3D visualization with Blender |
+| [Persistence Guide](docs/persistence_guide.md) | Robust file I/O and data integrity |
 | [ROADMAP.md](ROADMAP.md) | Project roadmap and milestones |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
 
