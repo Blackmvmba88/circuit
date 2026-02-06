@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Circuit Dashboard [CYBER]</title>
+  <link rel="stylesheet" href="css/cyberpunk.css">
+</head>
+<body>
+  <!-- Main Dashboard Grid Layout -->
+  <div class="dashboard">
+    
+    <!-- Header -->
+    <header class="header">
+      <div class="header-title">
+        <h1>⚡ CIRCUIT DASHBOARD</h1>
+        <span class="status-badge">● ONLINE</span>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-small" id="resetView">Reset View</button>
+        <button class="btn btn-small btn-magenta" id="fitView">Fit to View</button>
+        <button class="btn btn-small btn-purple" id="exportImage">Export PNG</button>
+      </div>
+    </header>
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <!-- File Upload Section -->
+      <section class="sidebar-section">
+        <h3>📁 Load Circuit</h3>
+        <input type="file" id="fileInput" accept=".json,.circuit.json" style="display: none;">
+        <button class="btn" style="width: 100%;" onclick="document.getElementById('fileInput').click()">
+          Choose File
+        </button>
+      </section>
+      
+      <!-- Circuit Info Section -->
+      <section class="sidebar-section">
+        <h3>ℹ️ Circuit Info</h3>
+        <div style="margin-top: 1rem;">
+          <div style="color: var(--cyber-cyan); font-weight: 700; margin-bottom: 0.5rem;">Name:</div>
+          <div id="circuitName" style="color: var(--text-secondary); margin-bottom: 1rem;">No circuit loaded</div>
+          
+          <div style="color: var(--cyber-cyan); font-weight: 700; margin-bottom: 0.5rem;">Description:</div>
+          <div id="circuitDescription" style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.4;">
+            Load a .circuit.json file to begin
+          </div>
+        </div>
+      </section>
+      
+      <!-- Component List Section -->
+      <section class="sidebar-section">
+        <h3>🔧 Components</h3>
+        <div id="componentList" class="component-list">
+          <!-- Components will be dynamically loaded here -->
+        </div>
+      </section>
+      
+      <!-- Navigation Items -->
+      <section class="sidebar-section">
+        <h3>🎮 Navigation</h3>
+        <ul class="nav-list">
+          <li class="nav-item active">
+            <span class="nav-icon">📊</span>
+            <span>Dashboard</span>
+          </li>
+          <li class="nav-item">
+            <span class="nav-icon">🔍</span>
+            <span>Analyze</span>
+          </li>
+          <li class="nav-item">
+            <span class="nav-icon">📤</span>
+            <span>Export</span>
+          </li>
+          <li class="nav-item">
+            <span class="nav-icon">⚙️</span>
+            <span>Settings</span>
+          </li>
+        </ul>
+      </section>
+    </aside>
+    
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Drop Zone (shown when no circuit loaded) -->
+      <div id="dropZone" class="drop-zone">
+        <span class="drop-icon">📂</span>
+        <div class="drop-text">Drag & Drop Circuit File</div>
+        <div class="drop-hint">or click to browse (.circuit.json)</div>
+      </div>
+      
+      <!-- Circuit Viewport -->
+      <div class="viewport-container" style="display: none;" id="viewportContainer">
+        <div class="viewport-header">
+          <h2 class="viewport-title">Circuit Visualization</h2>
+          <div class="viewport-controls">
+            <button class="control-btn" title="Pan: Click & Drag | Zoom: Mouse Wheel">
+              🖱️ Controls
+            </button>
+          </div>
+        </div>
+        <canvas id="circuitCanvas"></canvas>
+      </div>
+      
+      <!-- Metrics Grid -->
+      <div class="metrics-grid" id="metricsGrid" style="display: none;">
+        <!-- Component Count -->
+        <div class="metric-card">
+          <div class="metric-label">Total Components</div>
+          <div class="metric-value">
+            <span id="metricComponents">0</span>
+          </div>
+          <div class="metric-change">
+            <span>📦</span>
+            <span>Active</span>
+          </div>
+        </div>
+        
+        <!-- Net Count -->
+        <div class="metric-card">
+          <div class="metric-label">Connections/Nets</div>
+          <div class="metric-value">
+            <span id="metricNets">0</span>
+          </div>
+          <div class="metric-change">
+            <span>🔗</span>
+            <span>Links</span>
+          </div>
+        </div>
+        
+        <!-- PCB Dimensions -->
+        <div class="metric-card">
+          <div class="metric-label">Board Dimensions</div>
+          <div class="metric-value" style="font-size: 1.5rem;">
+            <span id="metricDimensions">N/A</span>
+            <span class="metric-unit">mm</span>
+          </div>
+          <div class="metric-change">
+            <span>📐</span>
+            <span>Size</span>
+          </div>
+        </div>
+        
+        <!-- Power Estimate -->
+        <div class="metric-card">
+          <div class="metric-label">Est. Power</div>
+          <div class="metric-value">
+            <span id="metricPower">0</span>
+            <span class="metric-unit">W</span>
+          </div>
+          <div class="metric-change">
+            <span>⚡</span>
+            <span>Consumption</span>
+          </div>
+        </div>
+      </div>
+      
+    </main>
+    
+    <!-- Console/Log Panel -->
+    <footer class="console">
+      <div class="console-header">
+        <div class="console-title">⚡ System Console</div>
+        <button class="console-clear" id="consoleClear">Clear</button>
+      </div>
+      <div id="consoleContent" class="console-content">
+        <!-- Console messages will be dynamically added here -->
+      </div>
+    </footer>
+    
+  </div>
+  
+  <!-- JavaScript -->
+  <script src="js/utils.js"></script>
+  <script src="js/circuit-renderer.js"></script>
+  <script src="js/dashboard.js"></script>
+  
+  <script>
+    // Additional initialization after dashboard loads
+    document.addEventListener('DOMContentLoaded', () => {
+      // Show viewport and metrics when circuit is loaded
+      const originalLoadCircuit = dashboard.loadCircuit.bind(dashboard);
+      dashboard.loadCircuit = function(data, filename) {
+        originalLoadCircuit(data, filename);
+        
+        // Show viewport and metrics
+        const viewportContainer = document.getElementById('viewportContainer');
+        const metricsGrid = document.getElementById('metricsGrid');
+        
+        if (viewportContainer) {
+          viewportContainer.style.display = 'flex';
+          viewportContainer.style.flexDirection = 'column';
+        }
+        
+        if (metricsGrid) {
+          metricsGrid.style.display = 'grid';
+        }
+      };
+      
+      // Load example circuit for demonstration (optional)
+      // Uncomment to auto-load an example
+      /*
+      fetch('../examples/simple_circuit.circuit.json')
+        .then(response => response.json())
+        .then(data => {
+          dashboard.loadCircuit(data, 'simple_circuit.circuit.json');
+        })
+        .catch(error => {
+          console.error('Failed to load example:', error);
+        });
+      */
+    });
+  </script>
+</body>
+</html>
