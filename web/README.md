@@ -1,6 +1,29 @@
-# Circuit Web Visualizer
+# Circuit Web Tools
 
-Interactive web-based viewer for `.circuit.json` files.
+Interactive web-based tools for viewing and analyzing `.circuit.json` files.
+
+## 🎨 Dashboard (Cyberpunk Edition) - **NEW!**
+
+A visually stunning, cyberpunk-styled dashboard for viewing, analyzing, and managing electronic circuits. Features neon colors, glitch effects, animated backgrounds, and interactive 2D canvas visualization.
+
+### Quick Start with Dashboard
+Open `dashboard.html` in your browser and drag-and-drop a `.circuit.json` file!
+
+### Dashboard Features
+- **Cyberpunk Aesthetic**: Neon colors, glowing borders, animated grid background
+- **Interactive Canvas**: Pan, zoom, and click components for details
+- **Real-time Metrics**: Component counts, connections, power estimation
+- **Component List**: Color-coded icons and searchable list
+- **System Console**: Live logging with timestamps
+- **Responsive Design**: Works on desktop, tablet, and mobile
+
+See `dashboard.html` for the full cyberpunk experience!
+
+---
+
+## 📊 Original Visualizer
+
+Simple, lightweight viewer for `.circuit.json` files (see `visualizer.html`).
 
 ## Features
 
