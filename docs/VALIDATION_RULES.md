@@ -85,8 +85,8 @@ At the root level, these fields are **required**:
 {
   "metadata": {
     "name": "My Circuit",
-    "created": "2024-01-15",
-    "modified": "2024-06-20"
+    "created": "2026-01-15",
+    "modified": "2026-02-06"
   }
 }
 ```
