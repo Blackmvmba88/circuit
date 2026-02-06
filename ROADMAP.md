@@ -11,26 +11,33 @@ This roadmap outlines the development phases and milestones for the Circuit proj
 - [x] Project documentation (README, CONTRIBUTING, CODE_OF_CONDUCT)
 - [x] Example circuit in .circuit.json format
 - [x] MIT License
+- [x] Create formal JSON schema for validation
+- [x] Write comprehensive format specification document (FORMAT_SPECIFICATION.md)
+- [x] Define standard component types and properties
+- [x] Document connection syntax and semantics
+- [x] Create validation rules documentation (VALIDATION_RULES.md)
+- [x] Implement comprehensive test suite for validator
+- [x] Multiple example circuits (various complexity levels)
 
 ### In Progress
-- [ ] Refine .circuit.json format specification
-- [ ] Create formal JSON schema for validation
 - [ ] Gather community feedback on format design
+- [ ] Enhance validator with pin-level validation
 
 ### Next Steps
-- [ ] Write comprehensive format specification document
-- [ ] Define standard component types and properties
-- [ ] Document connection syntax and semantics
-- [ ] Create additional example circuits (various complexity levels)
+- [ ] Add more advanced validation rules (pin existence, value units)
+- [ ] Create developer guide for extending the validator
+- [ ] Add more example circuits for different use cases
 
 ## Phase 2: Tooling Development
 
 **Goal**: Build essential tools for working with circuit files
 
 ### Validator
-- [ ] JSON schema validator for .circuit.json files
-- [ ] Semantic validation (e.g., connection validity)
-- [ ] CLI tool for validation
+- [x] JSON schema validator for .circuit.json files
+- [x] Semantic validation (e.g., connection validity)
+- [x] CLI tool for validation
+- [x] Comprehensive test suite
+- [ ] Pin-level validation (verify pins exist on components)
 - [ ] Integration with editors (VSCode extension, etc.)
 
 ### Parser/Library
