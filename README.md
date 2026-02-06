@@ -287,13 +287,34 @@ circuit export mycircuit.circuit.json --format altium
 
 See [`docs/altium_export_guide.md`](docs/altium_export_guide.md) for details.
 
-### Blender 3D
-Generate 3D PCB visualizations using Blender:
+### Blender 3D Visualization
+
+Generate stunning 3D visualizations of your circuits using Blender:
+
 ```bash
 blender --python blender_models/scripts/component_generator.py -- mycircuit.circuit.json
 ```
 
-See [`docs/blender_usage_guide.md`](docs/blender_usage_guide.md) for more.
+**Features:**
+- ✅ Load circuits directly from `.circuit.json` files
+- ✅ Auto-layout for circuits without 3D positions
+- ✅ Industry-standard component models (0805 SMD, SOIC8, etc.)
+- ✅ Realistic materials and colors
+- ✅ Export to STL, OBJ, glTF, FBX for other tools
+- ✅ Perfect for documentation, design review, and presentations
+
+**Quick Examples:**
+```bash
+# Simple LED circuit (auto-layout)
+blender --python blender_models/scripts/component_generator.py -- examples/simple_circuit.circuit.json
+
+# Full circuit with precise 3D positioning
+blender --python blender_models/scripts/component_generator.py -- examples/circuit_with_3d.circuit.json
+```
+
+See the complete guide: [`docs/blender_3d_visualization.md`](docs/blender_3d_visualization.md)
+
+Also check: [`blender_models/README.md`](blender_models/README.md) for interactive usage and component reference.
 
 ### Coming Soon
 - 🔧 KiCad import/export

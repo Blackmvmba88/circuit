@@ -7,11 +7,15 @@ for PCB visualization and design. All models follow industry-standard dimensions
 and include proper clearances for EMI/noise reduction.
 
 Usage in Blender:
-    1. Open Blender
-    2. Go to Scripting tab
-    3. Open this script
-    4. Run the script
-    5. Use the functions to generate components
+    1. Interactive mode (in Blender UI):
+       - Open Blender
+       - Go to Scripting tab
+       - Open this script
+       - Run the script
+       - Use the functions to generate components
+
+    2. Command-line mode (load circuit from JSON):
+       blender --python blender_models/scripts/component_generator.py -- examples/simple_circuit.circuit.json
 
 Example:
     import bpy
@@ -21,6 +25,9 @@ Example:
 
 import bpy
 import math
+import json
+import sys
+import os
 
 
 def clear_scene():
@@ -416,6 +423,134 @@ def create_pcb_board(name="PCB", location=(0, 0, 0), size=(50, 50), thickness=1.
     return pcb
 
 
+def create_diode_smd_0805(name="Diode", location=(0, 0, 0)):
+    """
+    Create an SMD diode (0805 package).
+    
+    Args:
+        name: Component name
+        location: (x, y, z) position
+    
+    Returns:
+        Created object
+    """
+    # Create the body (black epoxy)
+    bpy.ops.mesh.primitive_cube_add(
+        size=1,
+        location=location
+    )
+    diode = bpy.context.active_object
+    diode.name = name
+    diode.scale = (2.0, 1.25, 0.8)
+    
+    # Black epoxy material
+    body_mat = create_material(f"{name}_body", (0.05, 0.05, 0.05), metallic=0.0, roughness=0.8)
+    diode.data.materials.append(body_mat)
+    
+    # Create cathode indicator (white/silver line)
+    bpy.ops.mesh.primitive_cube_add(
+        size=1,
+        location=(location[0] - 0.75, location[1], location[2])
+    )
+    cathode_mark = bpy.context.active_object
+    cathode_mark.name = f"{name}_cathode_mark"
+    cathode_mark.scale = (0.3, 1.25, 0.85)
+    cathode_mat = create_material(f"{name}_cathode", (0.9, 0.9, 0.9), metallic=0.1, roughness=0.5)
+    cathode_mark.data.materials.append(cathode_mat)
+    
+    # Create terminals
+    terminal_mat = create_material(f"{name}_terminal", (0.8, 0.8, 0.8), metallic=0.9, roughness=0.3)
+    
+    for side, x_offset in [("L", -0.85), ("R", 0.85)]:
+        bpy.ops.mesh.primitive_cube_add(
+            size=1,
+            location=(location[0] + x_offset, location[1], location[2] - 0.3)
+        )
+        terminal = bpy.context.active_object
+        terminal.name = f"{name}_terminal_{side}"
+        terminal.scale = (0.3, 1.25, 0.2)
+        terminal.data.materials.append(terminal_mat)
+    
+    # Group
+    bpy.ops.object.select_all(action='DESELECT')
+    for obj in bpy.context.scene.objects:
+        if obj.name.startswith(name):
+            obj.select_set(True)
+    bpy.context.view_layer.objects.active = diode
+    bpy.ops.object.join()
+    
+    return diode
+
+
+def create_voltage_regulator_to220(name="VoltageReg", location=(0, 0, 0)):
+    """
+    Create a TO-220 voltage regulator package (e.g., LM7805).
+    
+    Standard TO-220 dimensions:
+    - Body width: 10mm
+    - Body depth: 9mm
+    - Body height: 4.5mm
+    
+    Args:
+        name: Component name
+        location: (x, y, z) position
+    
+    Returns:
+        Created object
+    """
+    # Create the body (black plastic)
+    bpy.ops.mesh.primitive_cube_add(
+        size=1,
+        location=location
+    )
+    body = bpy.context.active_object
+    body.name = name
+    body.scale = (10, 9, 4.5)
+    
+    # Black plastic material
+    body_mat = create_material(f"{name}_body", (0.05, 0.05, 0.05), metallic=0.0, roughness=0.8)
+    body.data.materials.append(body_mat)
+    
+    # Create mounting tab (metal)
+    bpy.ops.mesh.primitive_cube_add(
+        size=1,
+        location=(location[0], location[1] + 5.5, location[2])
+    )
+    tab = bpy.context.active_object
+    tab.name = f"{name}_mounting_tab"
+    tab.scale = (10, 2, 0.3)
+    tab_mat = create_material(f"{name}_tab", (0.7, 0.7, 0.7), metallic=0.8, roughness=0.4)
+    tab.data.materials.append(tab_mat)
+    
+    # Create 3 pins
+    pin_mat = create_material(f"{name}_pins", (0.85, 0.85, 0.85), metallic=0.9, roughness=0.3)
+    
+    pin_spacing = 2.54
+    pin_width = 0.6
+    pin_length = 3.0
+    pin_thickness = 0.5
+    
+    for i, x_offset in enumerate([-pin_spacing, 0, pin_spacing]):
+        bpy.ops.mesh.primitive_cube_add(
+            size=1,
+            location=(location[0] + x_offset, location[1] - 5.5, location[2] - 2)
+        )
+        pin = bpy.context.active_object
+        pin.name = f"{name}_pin_{i+1}"
+        pin.scale = (pin_width, pin_length, pin_thickness)
+        pin.data.materials.append(pin_mat)
+    
+    # Group all
+    bpy.ops.object.select_all(action='DESELECT')
+    for obj in bpy.context.scene.objects:
+        if obj.name.startswith(name):
+            obj.select_set(True)
+    bpy.context.view_layer.objects.active = body
+    bpy.ops.object.join()
+    
+    return body
+
+
 def create_example_circuit():
     """
     Create an example circuit with multiple components on a PCB.
@@ -461,6 +596,208 @@ def create_example_circuit():
     print("Components follow EMI best practices with proper spacing and decoupling.")
 
 
+def load_circuit_from_json(json_file_path):
+    """
+    Load and generate a 3D circuit from a .circuit.json file.
+    
+    This function parses a circuit definition in JSON format and generates
+    all components and the PCB board in Blender's 3D space.
+    
+    Args:
+        json_file_path: Path to the .circuit.json file
+        
+    Returns:
+        dict: The loaded circuit data
+        
+    Raises:
+        FileNotFoundError: If the JSON file doesn't exist
+        json.JSONDecodeError: If the JSON is invalid
+    """
+    print(f"\n{'='*70}")
+    print(f"Loading circuit from: {json_file_path}")
+    print(f"{'='*70}\n")
+    
+    # Load the JSON file
+    try:
+        with open(json_file_path, 'r') as f:
+            circuit_data = json.load(f)
+    except FileNotFoundError:
+        print(f"❌ Error: File '{json_file_path}' not found.")
+        raise
+    except json.JSONDecodeError as e:
+        print(f"❌ Error: Invalid JSON in '{json_file_path}': {e}")
+        raise
+    
+    # Extract metadata
+    metadata = circuit_data.get('metadata', {})
+    circuit_name = metadata.get('name', 'Unknown Circuit')
+    description = metadata.get('description', 'No description')
+    
+    print(f"📋 Circuit: {circuit_name}")
+    print(f"   {description}\n")
+    
+    # Clear the scene
+    clear_scene()
+    
+    # Create the PCB board
+    board = circuit_data.get('board', {})
+    if board:
+        dimensions = board.get('dimensions', {})
+        width = dimensions.get('width', 50)
+        height = dimensions.get('height', 50)
+        thickness = dimensions.get('thickness', 1.6)
+        
+        model_3d = board.get('model_3d', {})
+        position = model_3d.get('position', {'x': 0, 'y': 0, 'z': -0.8})
+        
+        print(f"🔨 Creating PCB: {width}x{height}mm, {thickness}mm thick")
+        pcb = create_pcb_board(
+            "PCB_Main",
+            location=(position['x'], position['y'], position['z']),
+            size=(width, height),
+            thickness=thickness
+        )
+    
+    # Component generator mapping
+    component_generators = {
+        'resistor': create_resistor_smd_0805,
+        'capacitor': create_capacitor_smd_0805,
+        'ic': create_ic_soic8,
+        'led': create_led_smd_0805,
+        'connector': create_header_connector,
+        'diode': create_diode_smd_0805,
+        'voltage_regulator': create_voltage_regulator_to220,
+    }
+    
+    # Create components
+    components = circuit_data.get('components', [])
+    print(f"\n🔧 Creating {len(components)} components:")
+    
+    # Auto-layout parameters for components without 3D positions
+    auto_x = -25
+    auto_y = 0
+    auto_spacing = 6
+    
+    for component in components:
+        comp_id = component.get('id', 'Unknown')
+        comp_type = component.get('type', '').lower()
+        model_3d = component.get('model_3d', {})
+        
+        # Determine position - use model_3d if available, otherwise auto-layout
+        if model_3d and 'position' in model_3d:
+            position = model_3d.get('position', {'x': 0, 'y': 0, 'z': 0})
+            location = (position['x'], position['y'], position['z'])
+        else:
+            # Auto-layout: place components in a row
+            location = (auto_x, auto_y, 0)
+            auto_x += auto_spacing
+            if not model_3d:
+                print(f"   ℹ️  {comp_id} ({comp_type}): Using auto-layout position")
+        
+        # Get generator function
+        generator_name = model_3d.get('generator') if model_3d else None
+        generator_func = None
+        
+        # Try to find generator by name or type
+        if generator_name:
+            # Direct function name mapping
+            func_map = {
+                'create_resistor_smd_0805': create_resistor_smd_0805,
+                'create_capacitor_smd_0805': create_capacitor_smd_0805,
+                'create_ic_soic8': create_ic_soic8,
+                'create_led_smd_0805': create_led_smd_0805,
+                'create_header_connector': create_header_connector,
+                'create_diode_smd_0805': create_diode_smd_0805,
+                'create_voltage_regulator_to220': create_voltage_regulator_to220,
+            }
+            generator_func = func_map.get(generator_name)
+        
+        # Fallback to component type
+        if not generator_func:
+            generator_func = component_generators.get(comp_type)
+        
+        if not generator_func:
+            print(f"   ⚠️  {comp_id} ({comp_type}): No generator found - skipping")
+            continue
+        
+        # Get additional parameters
+        params = model_3d.get('params', {}) if model_3d else {}
+        
+        # Generate the component based on type
+        try:
+            if comp_type == 'resistor':
+                # Try to get value from params or component data
+                value = params.get('resistance_value') or component.get('value', '1K')
+                generator_func(comp_id, location=location, resistance_value=value)
+                print(f"   ✅ {comp_id}: Resistor {value}")
+                
+            elif comp_type == 'capacitor':
+                value = params.get('capacitance_value', '100nF')
+                generator_func(comp_id, location=location, capacitance_value=value)
+                print(f"   ✅ {comp_id}: Capacitor {value}")
+                
+            elif comp_type == 'ic':
+                generator_func(comp_id, location=location)
+                package = component.get('package', 'SOIC8')
+                print(f"   ✅ {comp_id}: IC {package}")
+                
+            elif comp_type == 'led':
+                color = params.get('color') or component.get('color', 'red')
+                generator_func(comp_id, location=location, color=color)
+                print(f"   ✅ {comp_id}: LED {color}")
+                
+            elif comp_type == 'connector':
+                num_pins = params.get('num_pins', 8)
+                generator_func(comp_id, location=location, num_pins=num_pins)
+                print(f"   ✅ {comp_id}: Connector {num_pins}-pin")
+            
+            elif comp_type == 'diode':
+                generator_func(comp_id, location=location)
+                print(f"   ✅ {comp_id}: Diode 0805")
+            
+            elif comp_type == 'voltage_regulator':
+                generator_func(comp_id, location=location)
+                part = component.get('part_number', component.get('value', 'TO-220'))
+                print(f"   ✅ {comp_id}: Voltage Regulator {part}")
+            
+            elif comp_type in ['power_supply', 'ground']:
+                # Special handling for power supply and ground - just markers
+                print(f"   ℹ️  {comp_id} ({comp_type}): Virtual component - skipping 3D model")
+                
+            else:
+                print(f"   ⚠️  {comp_id} ({comp_type}): Unsupported type")
+                
+        except Exception as e:
+            print(f"   ❌ {comp_id}: Error creating component - {e}")
+    
+    # Set up camera and lighting
+    print("\n📸 Setting up camera and lighting...")
+    
+    # Get camera settings from JSON or use defaults
+    blender_gen = circuit_data.get('blender_generation', {})
+    render_opts = blender_gen.get('render_options', {})
+    
+    cam_pos = render_opts.get('camera_position', [50, -50, 40])
+    cam_rot = render_opts.get('camera_rotation', [1.1, 0, 0.785])
+    
+    bpy.ops.object.camera_add(location=cam_pos)
+    camera = bpy.context.active_object
+    camera.rotation_euler = cam_rot
+    bpy.context.scene.camera = camera
+    
+    # Add lighting
+    bpy.ops.object.light_add(type='SUN', location=(10, 10, 20))
+    light = bpy.context.active_object
+    light.data.energy = 2.0
+    
+    print("\n" + "="*70)
+    print(f"✅ Circuit '{circuit_name}' loaded successfully!")
+    print("   You can now navigate the 3D view, render, or export the model.")
+    print("="*70 + "\n")
+    
+    return circuit_data
+
+
 # Main execution
 if __name__ == "__main__":
     print("Circuit Component Generator loaded successfully!")
@@ -472,4 +809,48 @@ if __name__ == "__main__":
     print("  - create_header_connector(name, location, num_pins)")
     print("  - create_pcb_board(name, location, size, thickness)")
     print("  - create_example_circuit()")
-    print("\nTo create an example circuit, run: create_example_circuit()")
+    print("  - load_circuit_from_json(json_file_path)")
+    
+    # Check for command-line arguments (when run with blender --python script.py -- args)
+    # In Blender, sys.argv contains all arguments after '--'
+    try:
+        # Find the '--' separator in argv
+        argv = sys.argv
+        if '--' in argv:
+            # Get arguments after '--'
+            script_args = argv[argv.index('--') + 1:]
+            
+            if script_args:
+                json_file = script_args[0]
+                print(f"\n🚀 Loading circuit from command line: {json_file}")
+                
+                # Make path absolute if it's relative
+                if not os.path.isabs(json_file):
+                    # Try relative to current working directory
+                    if os.path.exists(json_file):
+                        json_file = os.path.abspath(json_file)
+                    else:
+                        # Try relative to script directory
+                        script_dir = os.path.dirname(os.path.abspath(__file__))
+                        repo_root = os.path.dirname(os.path.dirname(script_dir))
+                        json_file_alt = os.path.join(repo_root, json_file)
+                        if os.path.exists(json_file_alt):
+                            json_file = json_file_alt
+                
+                # Load and generate the circuit
+                try:
+                    load_circuit_from_json(json_file)
+                except Exception as e:
+                    print(f"\n❌ Failed to load circuit: {e}")
+                    import traceback
+                    traceback.print_exc()
+            else:
+                print("\n💡 To load a circuit from command line:")
+                print("   blender --python blender_models/scripts/component_generator.py -- examples/simple_circuit.circuit.json")
+        else:
+            print("\n💡 To create an example circuit, run: create_example_circuit()")
+            print("\n💡 To load a circuit from command line:")
+            print("   blender --python blender_models/scripts/component_generator.py -- examples/simple_circuit.circuit.json")
+    except Exception as e:
+        print(f"\n⚠️  Error processing command line arguments: {e}")
+        print("\n💡 To create an example circuit, run: create_example_circuit()")
