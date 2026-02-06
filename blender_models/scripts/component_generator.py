@@ -549,9 +549,6 @@ def create_voltage_regulator_to220(name="VoltageReg", location=(0, 0, 0)):
     bpy.ops.object.join()
     
     return body
-    pcb.data.materials.append(pcb_mat)
-    
-    return pcb
 
 
 def create_example_circuit():
@@ -730,10 +727,7 @@ def load_circuit_from_json(json_file_path):
         try:
             if comp_type == 'resistor':
                 # Try to get value from params or component data
-                value = params.get('resistance_value')
-                if not value:
-                    comp_value = component.get('value', '1K')
-                    value = comp_value
+                value = params.get('resistance_value') or component.get('value', '1K')
                 generator_func(comp_id, location=location, resistance_value=value)
                 print(f"   ✅ {comp_id}: Resistor {value}")
                 
@@ -748,9 +742,7 @@ def load_circuit_from_json(json_file_path):
                 print(f"   ✅ {comp_id}: IC {package}")
                 
             elif comp_type == 'led':
-                color = params.get('color')
-                if not color:
-                    color = component.get('color', 'red')
+                color = params.get('color') or component.get('color', 'red')
                 generator_func(comp_id, location=location, color=color)
                 print(f"   ✅ {comp_id}: LED {color}")
                 

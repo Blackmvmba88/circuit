@@ -151,8 +151,8 @@ blender --python blender_models/scripts/component_generator.py -- examples/simpl
 ```
 
 ### Components not appearing
-- Check that the JSON file is valid (use `validate_circuit.py` first)
-- Ensure component types are supported (resistor, capacitor, led, ic, connector)
+- Check that the JSON file is valid (use `test_json_loading.py` or `validate_circuit.py` first)
+- Ensure component types are supported (resistor, capacitor, led, ic, connector, diode, voltage_regulator)
 - Virtual components (power_supply, ground) won't generate 3D models
 
 ### Blender not found
